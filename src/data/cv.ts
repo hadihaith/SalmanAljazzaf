@@ -8,7 +8,7 @@ export const profile = {
   university: 'Kuwait University',
   location: 'Kuwait',
   email: 'TODO@ku.edu.kw',
-  photo: '', // TODO: drop a photo in /public (e.g. /profile.jpg) and set its path here
+  photo: '', // TODO: drop a photo in /public and set its path here, e.g. '/profile.jpg'
   summary:
     'TODO: A short two or three sentence introduction — research focus, teaching interests, and what drives the work.',
   links: [

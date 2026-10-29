@@ -1,8 +1,7 @@
 name: Build
 
+# Pushes to main are built by deploy.yml; this checks pull requests
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:

@@ -6,6 +6,7 @@ const initials = words
   .filter((w) => !w.endsWith('.'))
   .map((w) => w[0])
   .join('');
+const photoSrc = `${import.meta.env.BASE_URL.replace(/\/$/, '')}${profile.photo}`;
 ---
 
 <section class="hero" id="top">
@@ -41,7 +42,7 @@ const initials = words
       <div class="ring"></div>
       {
         profile.photo ? (
-          <img src={profile.photo} alt={profile.name} />
+          <img src={photoSrc} alt={profile.name} />
         ) : (
           <span class="initials">{initials}</span>
         )
