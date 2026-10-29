@@ -1,0 +1,113 @@
+---
+import { publications } from '../data/cv';
+---
+
+<section class="section" id="publications">
+  <div class="container">
+    <span class="eyebrow" data-reveal>Publications</span>
+    <h2 class="section-title" data-reveal style="--i: 1">Selected works</h2>
+
+    <ul class="list">
+      {
+        publications.map((pub, i) => (
+          <li data-reveal style={`--i: ${i}`}>
+            <a href={pub.href} target="_blank" rel="noopener" class="pub">
+              <span class="year">{pub.year}</span>
+              <span class="body">
+                <span class="title">{pub.title}</span>
+                <span class="meta">
+                  {pub.authors} — <em>{pub.venue}</em>
+                </span>
+              </span>
+              <span class="arrow" aria-hidden="true">
+                →
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .pub {
+    position: relative;
+    display: grid;
+    grid-template-columns: 5rem 1fr auto;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.5rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+    isolation: isolate;
+  }
+
+  /* Sweep highlight on hover */
+  .pub::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(232, 194, 122, 0.08), transparent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s var(--ease);
+    z-index: -1;
+  }
+
+  .pub:hover::before {
+    transform: scaleX(1);
+  }
+
+  .year {
+    font-family: var(--font-serif);
+    color: var(--accent);
+    font-size: 1.1rem;
+  }
+
+  .body {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .title {
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+
+  .meta {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .arrow {
+    font-size: 1.25rem;
+    color: var(--muted);
+    transition:
+      transform 0.4s var(--ease),
+      color 0.3s;
+  }
+
+  .pub:hover .arrow {
+    transform: translateX(6px);
+    color: var(--accent);
+  }
+
+  @media (max-width: 600px) {
+    .pub {
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem 1rem;
+    }
+
+    .year {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

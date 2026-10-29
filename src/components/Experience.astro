@@ -1,0 +1,46 @@
+---
+import { education, experience } from '../data/cv';
+import Timeline from './Timeline.astro';
+---
+
+<section class="section" id="experience">
+  <div class="container">
+    <span class="eyebrow" data-reveal>Career</span>
+    <h2 class="section-title" data-reveal style="--i: 1">Experience &amp; education</h2>
+
+    <div class="columns">
+      <Timeline
+        heading="Experience"
+        items={experience.map((e) => ({
+          title: e.role,
+          subtitle: e.org,
+          period: e.period,
+          detail: e.detail,
+        }))}
+      />
+      <Timeline
+        heading="Education"
+        items={education.map((e) => ({
+          title: e.degree,
+          subtitle: e.institution,
+          period: e.period,
+        }))}
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+  }
+
+  @media (max-width: 820px) {
+    .columns {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+</style>

@@ -1,0 +1,44 @@
+---
+import { courses } from '../data/cv';
+---
+
+<section class="section" id="teaching">
+  <div class="container">
+    <span class="eyebrow" data-reveal>Teaching</span>
+    <h2 class="section-title" data-reveal style="--i: 1">Courses</h2>
+
+    <div class="grid">
+      {
+        courses.map((course, i) => (
+          <div class="card" data-reveal="scale" style={`--i: ${i}`}>
+            <span class="code">{course.code}</span>
+            <h3>{course.name}</h3>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+
+  .code {
+    display: inline-block;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid rgba(110, 168, 254, 0.35);
+    color: var(--accent-2);
+    margin-bottom: 1rem;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+  }
+</style>

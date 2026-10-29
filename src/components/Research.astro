@@ -1,0 +1,47 @@
+---
+import { researchInterests } from '../data/cv';
+---
+
+<section class="section" id="research">
+  <div class="container">
+    <span class="eyebrow" data-reveal>Research</span>
+    <h2 class="section-title" data-reveal style="--i: 1">Areas of interest</h2>
+
+    <div class="grid">
+      {
+        researchInterests.map((interest, i) => (
+          <article class="card" data-reveal style={`--i: ${i}`}>
+            <span class="index">{String(i + 1).padStart(2, '0')}</span>
+            <h3>{interest}</h3>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1rem;
+  }
+
+  .index {
+    display: block;
+    font-family: var(--font-serif);
+    font-size: 2.5rem;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--accent);
+    margin-bottom: 1.5rem;
+    transition: color 0.4s var(--ease);
+  }
+
+  .card:hover .index {
+    color: var(--accent);
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+</style>

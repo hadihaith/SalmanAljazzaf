@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import About from '../components/About.astro';
+import Research from '../components/Research.astro';
+import Experience from '../components/Experience.astro';
+import Publications from '../components/Publications.astro';
+import Teaching from '../components/Teaching.astro';
+import Contact from '../components/Contact.astro';
+import { profile } from '../data/cv';
+---
+
+<Layout
+  title={`${profile.name} — ${profile.university}`}
+  description={`Academic CV and portfolio of ${profile.name}, ${profile.university}.`}
+>
+  <Header />
+  <main>
+    <Hero />
+    <About />
+    <Research />
+    <Experience />
+    <Publications />
+    <Teaching />
+    <Contact />
+  </main>
+</Layout>

@@ -1,0 +1,106 @@
+---
+interface Item {
+  title: string;
+  subtitle: string;
+  period: string;
+  detail?: string;
+}
+
+interface Props {
+  heading: string;
+  items: Item[];
+}
+
+const { heading, items } = Astro.props;
+---
+
+<div>
+  <h3 class="heading" data-reveal>{heading}</h3>
+  <ol class="timeline">
+    {
+      items.map((item, i) => (
+        <li data-reveal="left" style={`--i: ${i}`}>
+          <span class="period">{item.period}</span>
+          <h4>{item.title}</h4>
+          <p class="subtitle">{item.subtitle}</p>
+          {item.detail && <p class="detail">{item.detail}</p>}
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<style>
+  .heading {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .timeline {
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0 0 0 2rem;
+  }
+
+  /* Track and the line that "draws" as you scroll */
+  .timeline::before,
+  .timeline::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 0.4rem;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .timeline::after {
+    background: linear-gradient(var(--accent), var(--accent-2));
+    transform-origin: top;
+    transform: scaleY(var(--draw, 0));
+  }
+
+  li {
+    position: relative;
+    padding-bottom: 2.25rem;
+  }
+
+  li::before {
+    content: '';
+    position: absolute;
+    left: calc(-2rem + 1px);
+    top: 0.4rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--accent);
+    z-index: 1;
+    box-shadow: 0 0 0 4px rgba(232, 194, 122, 0.12);
+  }
+
+  .period {
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+  }
+
+  h4 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 1.2rem;
+    margin: 0.25rem 0;
+  }
+
+  .subtitle {
+    margin: 0;
+    color: var(--text);
+  }
+
+  .detail {
+    margin: 0.4rem 0 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+</style>

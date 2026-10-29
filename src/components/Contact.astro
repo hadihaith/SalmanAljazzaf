@@ -1,0 +1,65 @@
+---
+import { profile } from '../data/cv';
+
+const year = new Date().getFullYear();
+---
+
+<section class="section contact" id="contact">
+  <div class="container">
+    <span class="eyebrow" data-reveal>Contact</span>
+    <h2 data-reveal style="--i: 1">Let's connect.</h2>
+    <p data-reveal style="--i: 2">
+      {profile.department}, {profile.university} · {profile.location}
+    </p>
+    <a class="email" href={`mailto:${profile.email}`} data-reveal style="--i: 3">
+      {profile.email}
+    </a>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">© {year} {profile.name}. All rights reserved.</div>
+</footer>
+
+<style>
+  .contact {
+    text-align: center;
+  }
+
+  h2 {
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: var(--muted);
+    margin: 0 0 2rem;
+  }
+
+  .email {
+    display: inline-block;
+    font-family: var(--font-serif);
+    font-size: clamp(1.25rem, 3vw, 2rem);
+    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent));
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shimmer 6s linear infinite;
+    word-break: break-all;
+  }
+
+  .footer {
+    padding-block: 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+
+  @keyframes shimmer {
+    to {
+      background-position: 200% 0;
+    }
+  }
+</style>
