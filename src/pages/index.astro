@@ -13,12 +13,100 @@ import Talks from '../components/Talks.astro';
 import Service from '../components/Service.astro';
 import Media from '../components/Media.astro';
 import Contact from '../components/Contact.astro';
-import { focusAreas, profile } from '../data/cv';
+import {
+  certifications,
+  conferencePapers,
+  focusAreas,
+  journalArticles,
+  profile,
+  researchInterests,
+} from '../data/cv';
+
+const title = `${profile.name} — Information Systems, ${profile.university}`;
+// Kept under ~160 characters so search results don't truncate it
+const description = `${profile.name}, Assistant Professor at ${profile.university}, researches the business value of IT, IT governance, digital platforms, and e-government.`;
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const pageUrl = new URL(`${base}/`, Astro.site).href;
+const abs = (path: string) => new URL(`${base}${path}`, Astro.site).href;
+
+const university = {
+  '@type': 'CollegeOrUniversity',
+  name: profile.university,
+  url: 'https://ku.edu.kw',
+};
+
+// schema.org Person: lets search engines show him as an entity (name, role, affiliation, profiles)
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'ProfilePage',
+      '@id': `${pageUrl}#page`,
+      url: pageUrl,
+      name: title,
+      description,
+      inLanguage: 'en',
+      primaryImageOfPage: abs('/og-image.jpg'),
+      mainEntity: { '@id': `${pageUrl}#person` },
+    },
+    {
+      '@type': 'Person',
+      '@id': `${pageUrl}#person`,
+      name: profile.shortName,
+      honorificPrefix: 'Dr.',
+      givenName: 'Salman',
+      familyName: 'Aljazzaf',
+      jobTitle: profile.title,
+      description: profile.summary,
+      url: pageUrl,
+      image: abs('/portrait.jpg'),
+      email: `mailto:${profile.email}`,
+      worksFor: {
+        '@type': 'Organization',
+        name: `${profile.department}, ${profile.college}`,
+        parentOrganization: university,
+      },
+      affiliation: university,
+      alumniOf: [
+        {
+          '@type': 'CollegeOrUniversity',
+          name: 'University of Maryland, College Park',
+          department: 'Robert H. Smith School of Business',
+        },
+        university,
+      ],
+      hasCredential: [
+        ...['Ph.D. in Information Systems', 'Master of Business Administration', 'B.Sc. in Computer Engineering'].map(
+          (name) => ({ '@type': 'EducationalOccupationalCredential', credentialCategory: 'degree', name }),
+        ),
+        ...certifications.map((cert) => ({
+          '@type': 'EducationalOccupationalCredential',
+          credentialCategory: 'certification',
+          name: `${cert.name} (${cert.short})`,
+          recognizedBy: { '@type': 'Organization', name: cert.issuer },
+        })),
+      ],
+      knowsAbout: [...researchInterests.map((r) => r.title), 'Qualitative Comparative Analysis'],
+      sameAs: profile.links.filter((l) => l.href.startsWith('http')).map((l) => l.href),
+      address: { '@type': 'PostalAddress', addressLocality: 'Kuwait City', addressCountry: 'KW' },
+    },
+    ...[...journalArticles, ...conferencePapers.filter((p) => !p.status)].map((pub) => ({
+      '@type': 'ScholarlyArticle',
+      headline: pub.title,
+      datePublished: pub.year,
+      isPartOf: pub.venue,
+      author: { '@id': `${pageUrl}#person` },
+    })),
+  ],
+};
 ---
 
 <Layout
-  title={`${profile.name} — ${profile.university}`}
-  description={`${profile.name}, ${profile.title} at the ${profile.college}, ${profile.university}.`}
+  title={title}
+  description={description}
+  imageAlt={`${profile.name}, ${profile.title} at ${profile.university}`}
+  structuredData={structuredData}
 >
   <Header />
   <main>

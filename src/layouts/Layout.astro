@@ -5,10 +5,25 @@ import Preloader from '../components/Preloader.astro';
 interface Props {
   title: string;
   description?: string;
+  /** Path under /public of the 1200×630 link-preview image */
+  image?: string;
+  imageAlt?: string;
+  /** schema.org JSON-LD for this page */
+  structuredData?: Record<string, unknown>;
 }
 
-const { title, description = 'Academic CV and portfolio' } = Astro.props;
+const {
+  title,
+  description = 'Academic CV and portfolio',
+  image = '/og-image.jpg',
+  imageAlt = title,
+  structuredData,
+} = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+// Link previews need absolute URLs
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const imageUrl = new URL(`${base}${image}`, Astro.site);
 ---
 
 <!doctype html>
@@ -16,10 +31,43 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="author" content="Salman Aljazzaf" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href={canonical} />
+    <link rel="sitemap" href={`${base}/sitemap.xml`} />
     <meta name="color-scheme" content="light only" />
     <meta name="theme-color" content="#fbfaf7" />
+
+    <!-- Link previews (WhatsApp, LinkedIn, Facebook, Slack, Discord, iMessage…) -->
+    <meta property="og:type" content="profile" />
+    <meta property="og:site_name" content="Dr. Salman Aljazzaf" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:secure_url" content={imageUrl} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta property="profile:first_name" content="Salman" />
+    <meta property="profile:last_name" content="Aljazzaf" />
+
+    <!-- X / Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content={imageAlt} />
+
     <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
+    <link rel="icon" type="image/png" sizes="32x32" href={`${base}/favicon-32.png`} />
+    <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} />
+
+    {structuredData && <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -29,7 +77,6 @@ const base = import.meta.env.BASE_URL.replace(/\/$/, '');
     <script is:inline>
       document.documentElement.classList.remove('no-js');
     </script>
-    <title>{title}</title>
   </head>
   <body class="is-loading">
     <Preloader />
