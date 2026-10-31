@@ -1,0 +1,340 @@
+---
+import { certifications, education, honors } from '../data/cv';
+---
+
+<section class="section" id="education">
+  <div class="container">
+    <span class="eyebrow">Education, Certifications & Honors</span>
+    <h2 class="section-title" data-split>
+      Academic <em>foundations</em>
+    </h2>
+
+    <div class="degrees">
+      {
+        education.map((item, i) => (
+          <article class="card degree" data-reveal style={`--i: ${i}`} data-tilt="4">
+            <span class="year">{item.year}</span>
+            <div>
+              <h3>{item.degree}</h3>
+              <p>{item.institution}</p>
+              {item.note && <p class="note">{item.note}</p>}
+            </div>
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="lower">
+      <div class="certs">
+        <h3 class="sub" data-reveal>Certifications</h3>
+        <div class="cert-grid">
+          {
+            certifications.map((cert, i) => (
+              <article
+                class:list={['cert', cert.issuer.toLowerCase()]}
+                data-reveal="scale"
+                style={`--i: ${i + 1}`}
+                data-tilt="12"
+              >
+                <div class="cert-inner">
+                  <span class="badge" aria-hidden="true">
+                    <svg viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="46" />
+                    </svg>
+                    <span>{cert.short}</span>
+                  </span>
+                  <span class="issuer">
+                    {cert.issuer} · {cert.year}
+                  </span>
+                  <h4>{cert.name}</h4>
+                </div>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="honors">
+        <h3 class="sub" data-reveal>Honors & scholarships</h3>
+        <ul>
+          {
+            honors.map((honor, i) => (
+              <li data-reveal="right" style={`--i: ${i + 1}`}>
+                <span class="medal" aria-hidden="true">
+                  ★
+                </span>
+                <div>
+                  <strong>{honor.title}</strong>
+                  <span>{honor.detail}</span>
+                </div>
+                <span class="period">{honor.period}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .degrees {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .degree {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: 2rem;
+  }
+
+  .year {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--gold);
+    line-height: 1;
+    min-width: 4ch;
+  }
+
+  .degree h3 {
+    font-size: 1.35rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .degree p {
+    margin: 0;
+    color: var(--muted);
+  }
+
+  .degree .note {
+    margin-top: 0.85rem;
+    padding: 0.85rem 1rem;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    background: var(--accent-soft);
+    color: var(--text);
+    font-size: 0.93rem;
+    font-style: italic;
+  }
+
+  .lower {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    margin-top: 4rem;
+  }
+
+  .sub {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  /* ---------- Certification badges ---------- */
+  .cert-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .cert {
+    --brand: #049fd9;
+    --brand-2: #1d5fa8;
+    position: relative;
+    border-radius: calc(var(--radius) + 2px);
+    padding: 2px;
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .cert.microsoft {
+    --brand: #00a4ef;
+    --brand-2: #7fba00;
+  }
+
+  /* Rotating gradient border */
+  .cert::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    background: conic-gradient(from 0deg, var(--brand), var(--accent), var(--gold), var(--brand));
+    animation: spin 6s linear infinite;
+  }
+
+  .cert-inner {
+    position: relative;
+    height: 100%;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    background: linear-gradient(160deg, #ffffff, #f2f8fc);
+    overflow: hidden;
+  }
+
+  /* Shine sweep */
+  .cert-inner::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 35%, rgba(255, 255, 255, 0.9) 50%, transparent 65%);
+    transform: translateX(-100%);
+    animation: sweep 4s var(--ease) 1s infinite;
+    pointer-events: none;
+  }
+
+  .microsoft .cert-inner::after {
+    animation-delay: 3s;
+  }
+
+  .badge {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 76px;
+    height: 76px;
+    margin-bottom: 1.25rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    color: #fff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    box-shadow: 0 12px 30px color-mix(in srgb, var(--brand) 35%, transparent);
+    animation: float 5s ease-in-out infinite;
+  }
+
+  .microsoft .badge {
+    animation-delay: -2.5s;
+  }
+
+  .badge svg {
+    position: absolute;
+    inset: -9px;
+    width: calc(100% + 18px);
+    height: calc(100% + 18px);
+    fill: none;
+    stroke: var(--brand);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 8;
+    animation: spin 14s linear infinite;
+  }
+
+  .issuer {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brand);
+    margin-bottom: 0.4rem;
+  }
+
+  .cert h4 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 1.15rem;
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  /* ---------- Honors ---------- */
+  .honors ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .honors li {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.25rem;
+    border-radius: var(--radius);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  .medal {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--gold-soft);
+    color: var(--gold);
+    font-size: 1.1rem;
+    transition: transform 0.7s var(--ease-spring);
+  }
+
+  .honors li:hover .medal {
+    transform: rotate(144deg) scale(1.15);
+  }
+
+  .honors strong {
+    display: block;
+    font-weight: 600;
+  }
+
+  .honors li span:not(.medal):not(.period) {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .period {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 900px) {
+    .lower {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .degree {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .honors li {
+      grid-template-columns: auto 1fr;
+    }
+
+    .period {
+      grid-column: 2;
+    }
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+
+  @keyframes sweep {
+    0% {
+      transform: translateX(-100%);
+    }
+    50%,
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+</style>

@@ -2,27 +2,37 @@
 import Layout from '../layouts/Layout.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
+import Marquee from '../components/Marquee.astro';
 import About from '../components/About.astro';
 import Research from '../components/Research.astro';
-import Experience from '../components/Experience.astro';
 import Publications from '../components/Publications.astro';
+import Experience from '../components/Experience.astro';
+import Education from '../components/Education.astro';
 import Teaching from '../components/Teaching.astro';
+import Talks from '../components/Talks.astro';
+import Service from '../components/Service.astro';
+import Media from '../components/Media.astro';
 import Contact from '../components/Contact.astro';
-import { profile } from '../data/cv';
+import { focusAreas, profile } from '../data/cv';
 ---
 
 <Layout
   title={`${profile.name} — ${profile.university}`}
-  description={`Academic CV and portfolio of ${profile.name}, ${profile.university}.`}
+  description={`${profile.name}, ${profile.title} at the ${profile.college}, ${profile.university}.`}
 >
   <Header />
   <main>
     <Hero />
+    <Marquee items={[...focusAreas, 'Qualitative Comparative Analysis', 'Cisco CCNA']} />
     <About />
     <Research />
-    <Experience />
     <Publications />
+    <Experience />
+    <Education />
     <Teaching />
+    <Talks />
+    <Service />
+    <Media />
     <Contact />
   </main>
 </Layout>

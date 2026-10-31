@@ -1,19 +1,38 @@
 ---
-import { researchInterests } from '../data/cv';
+import { researchInterests, skills } from '../data/cv';
 ---
 
-<section class="section" id="research">
+<section class="section alt" id="research">
   <div class="container">
-    <span class="eyebrow" data-reveal>Research</span>
-    <h2 class="section-title" data-reveal style="--i: 1">Areas of interest</h2>
+    <span class="eyebrow">Research</span>
+    <h2 class="section-title" data-split>
+      Areas of <em>interest</em>
+    </h2>
 
     <div class="grid">
       {
         researchInterests.map((interest, i) => (
-          <article class="card" data-reveal style={`--i: ${i}`}>
+          <article class="card" data-reveal style={`--i: ${i % 3}`} data-tilt="10">
             <span class="index">{String(i + 1).padStart(2, '0')}</span>
-            <h3>{interest}</h3>
+            <h3>{interest.title}</h3>
+            <p>{interest.text}</p>
+            <span class="bar" aria-hidden="true" />
           </article>
+        ))
+      }
+    </div>
+
+    <div class="skills">
+      {
+        skills.map((group, gi) => (
+          <div class="skill-group" data-reveal style={`--i: ${gi}`}>
+            <h3>{group.group}</h3>
+            <ul>
+              {group.items.map((item, i) => (
+                <li style={`--c: ${i}`}>{item}</li>
+              ))}
+            </ul>
+          </div>
         ))
       }
     </div>
@@ -23,25 +42,119 @@ import { researchInterests } from '../data/cv';
 <style>
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
   }
 
   .index {
     display: block;
     font-family: var(--font-serif);
-    font-size: 2.5rem;
+    font-size: 3.2rem;
+    line-height: 1;
     color: transparent;
     -webkit-text-stroke: 1px var(--accent);
-    margin-bottom: 1.5rem;
-    transition: color 0.4s var(--ease);
+    margin-bottom: 2rem;
+    transition:
+      color 0.5s var(--ease),
+      transform 0.6s var(--ease-spring);
   }
 
   .card:hover .index {
     color: var(--accent);
+    transform: translateY(-4px) scale(1.06);
   }
 
   h3 {
-    font-size: 1.25rem;
+    font-size: 1.35rem;
+    margin-bottom: 0.6rem;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .bar {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 3px;
+    width: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--gold));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s var(--ease);
+  }
+
+  .card:hover .bar {
+    transform: scaleX(1);
+  }
+
+  .skills {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    margin-top: 4rem;
+  }
+
+  .skill-group h3 {
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+  }
+
+  .skill-group ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  /* Pills pop in one after another once the group is revealed */
+  .skill-group li {
+    padding: 0.45rem 0.95rem;
+    border-radius: 999px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    font-size: 0.88rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(12px) scale(0.85);
+    transition:
+      opacity 0.5s var(--ease),
+      transform 0.6s var(--ease-spring),
+      background 0.3s,
+      color 0.3s,
+      border-color 0.3s;
+    transition-delay: calc(var(--c) * 50ms + 200ms), calc(var(--c) * 50ms + 200ms), 0s, 0s, 0s;
+  }
+
+  .skill-group:global(.is-visible) li {
+    opacity: 1;
+    transform: none;
+  }
+
+  .skill-group li:hover {
+    background: var(--text);
+    color: #fff;
+    border-color: var(--text);
+  }
+
+  @media (max-width: 900px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .skills {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

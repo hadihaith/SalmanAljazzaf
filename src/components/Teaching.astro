@@ -1,19 +1,42 @@
 ---
-import { courses } from '../data/cv';
+import { courseDevelopment, courses, otherTeaching, profile } from '../data/cv';
 ---
 
-<section class="section" id="teaching">
+<section class="section alt" id="teaching">
   <div class="container">
-    <span class="eyebrow" data-reveal>Teaching</span>
-    <h2 class="section-title" data-reveal style="--i: 1">Courses</h2>
+    <span class="eyebrow">Teaching</span>
+    <h2 class="section-title" data-split>
+      Courses at <em>{profile.university}</em>
+    </h2>
 
     <div class="grid">
       {
         courses.map((course, i) => (
-          <div class="card" data-reveal="scale" style={`--i: ${i}`}>
-            <span class="code">{course.code}</span>
-            <h3>{course.name}</h3>
+          <div class="card course" data-reveal="scale" style={`--i: ${i % 3}`} data-tilt="10">
+            <span class="level">Undergraduate</span>
+            <h3>{course}</h3>
+            <span class="num" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
           </div>
+        ))
+      }
+    </div>
+
+    <p class="dev" data-reveal>
+      <span class="dev-label">Course development</span>
+      {courseDevelopment}
+    </p>
+
+    <div class="other">
+      {
+        otherTeaching.map((item, i) => (
+          <article class="card" data-reveal={i === 0 ? 'left' : 'right'} style={`--i: ${i}`}>
+            <span class="label">{item.label}</span>
+            <h3>{item.title}</h3>
+            <span class="date">{item.date}</span>
+            <p>{item.text}</p>
+          </article>
         ))
       }
     </div>
@@ -23,22 +46,118 @@ import { courses } from '../data/cv';
 <style>
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
   }
 
-  .code {
-    display: inline-block;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    padding: 0.25rem 0.6rem;
+  .course {
+    min-height: 190px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .level {
+    align-self: flex-start;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.75rem;
     border-radius: 999px;
-    border: 1px solid rgba(110, 168, 254, 0.35);
-    color: var(--accent-2);
-    margin-bottom: 1rem;
+    color: var(--gold);
+    background: var(--gold-soft);
   }
 
-  h3 {
-    font-size: 1.15rem;
+  .course h3 {
+    position: relative;
+    z-index: 1;
+    font-size: 1.3rem;
+    max-width: 85%;
+  }
+
+  .num {
+    position: absolute;
+    right: 1rem;
+    bottom: -1.5rem;
+    font-family: var(--font-serif);
+    font-size: 7rem;
+    line-height: 1;
+    color: var(--accent-soft);
+    transition:
+      transform 0.7s var(--ease),
+      color 0.5s;
+  }
+
+  .course:hover .num {
+    transform: translateY(-14px) rotate(-6deg);
+    color: rgba(37, 70, 201, 0.14);
+  }
+
+  .dev {
+    margin: 2.5rem 0 0;
+    padding: 1.5rem 1.75rem;
+    border-radius: var(--radius);
+    border: 1px dashed rgba(37, 70, 201, 0.3);
+    color: var(--muted);
+    max-width: 900px;
+  }
+
+  .dev-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .other {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-top: 2.5rem;
+  }
+
+  .other .label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .other h3 {
+    font-size: 1.3rem;
+    margin: 0.6rem 0 0.4rem;
+  }
+
+  .date {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--accent);
+  }
+
+  .other p {
+    margin: 0.75rem 0 0;
+    color: var(--muted);
+  }
+
+  @media (max-width: 900px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .other {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

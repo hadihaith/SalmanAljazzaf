@@ -1,0 +1,339 @@
+---
+import { community, media } from '../data/cv';
+---
+
+<section class="section" id="media">
+  <div class="container">
+    <span class="eyebrow">Media & Community</span>
+    <h2 class="section-title" data-split>
+      Beyond <em>the classroom</em>
+    </h2>
+
+    <h3 class="sub" data-reveal>Media appearances</h3>
+    <div class="media">
+      {
+        media.map((item, i) => {
+          const Tag = item.href ? 'a' : 'div';
+          return (
+            <Tag
+              class:list={['card', 'clip', { playable: item.href }]}
+              data-reveal="scale"
+              style={`--i: ${i}`}
+              data-tilt="10"
+              {...(item.href ? { href: item.href, target: '_blank', rel: 'noopener' } : {})}
+            >
+              <span class="screen">
+                {item.thumb ? (
+                  <img
+                    src={item.thumb}
+                    alt={`${item.outlet} — ${item.show} video thumbnail`}
+                    width="480"
+                    height="360"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <span class="wave" aria-hidden="true">
+                    {Array.from({ length: 9 }, (_, b) => (
+                      <i style={`--b: ${b}`} />
+                    ))}
+                  </span>
+                )}
+                <span class="play" aria-hidden="true">
+                  {item.href ? '▶' : '🎙'}
+                </span>
+              </span>
+              <span class="outlet">{item.outlet}</span>
+              <h4>{item.show}</h4>
+              <p>On {item.topic.toLowerCase()}</p>
+              <span class="date">
+                {item.date}
+                {item.href && ' · Watch'}
+              </span>
+            </Tag>
+          );
+        })
+      }
+    </div>
+
+    <h3 class="sub" data-reveal>Community engagement</h3>
+    <ul class="community">
+      {
+        community.map((item, i) => (
+          <li data-reveal style={`--i: ${i}`}>
+            <span class="role">{item.role}</span>
+            <div>
+              <strong>{item.org}</strong>
+              <p>{item.text}</p>
+            </div>
+            <span class="date">{item.date}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<script>
+  // YouTube serves a 120×90 grey placeholder for removed or private videos — hide it
+  document.querySelectorAll<HTMLImageElement>('#media .screen img').forEach((img) => {
+    const check = () => img.classList.toggle('is-missing', img.naturalWidth <= 120);
+    if (img.complete) check();
+    img.addEventListener('load', check);
+    img.addEventListener('error', () => img.classList.add('is-missing'));
+  });
+</script>
+
+<style>
+  .sub {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .media {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 4rem;
+  }
+
+  .clip {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1rem 1.25rem;
+  }
+
+  .screen {
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 16 / 9;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--text), #2a3b68);
+  }
+
+  /* hqdefault is 4:3 with letterboxing, so crop it to 16:9 */
+  .screen img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scale(1.02);
+    transition:
+      transform 0.9s var(--ease),
+      filter 0.6s var(--ease);
+  }
+
+  .clip:hover .screen img {
+    transform: scale(1.1);
+    filter: brightness(0.8);
+  }
+
+  .screen img:global(.is-missing) {
+    display: none;
+  }
+
+  /* Darken toward the bottom so the play button reads on any frame */
+  .screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(20, 33, 61, 0.45));
+    pointer-events: none;
+  }
+
+  /* Audio-only card: animated equalizer bars */
+  .wave {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    opacity: 0.35;
+  }
+
+  .wave i {
+    width: 5px;
+    height: 40%;
+    border-radius: 3px;
+    background: var(--gold);
+    animation: eq 1.1s ease-in-out infinite alternate;
+    animation-delay: calc(var(--b) * -0.17s);
+  }
+
+  /* Animated scan-line shimmer on the "screen" */
+  .screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.12) 50%, transparent 70%);
+    transform: translateX(-100%);
+    animation: scan 5s var(--ease) infinite;
+  }
+
+  .clip:nth-child(2) .screen::before {
+    animation-delay: 1.2s;
+  }
+
+  .clip:nth-child(3) .screen::before {
+    animation-delay: 2.4s;
+  }
+
+  .clip:nth-child(4) .screen::before {
+    animation-delay: 3.6s;
+  }
+
+  .play {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text);
+    font-size: 1rem;
+    padding-left: 3px;
+    transition: transform 0.5s var(--ease-spring);
+  }
+
+  .playable .play {
+    color: #d93025;
+  }
+
+  .playable .play::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    animation: pulse 2.2s var(--ease) infinite;
+  }
+
+  .clip:hover .play {
+    transform: scale(1.18);
+  }
+
+  .outlet {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h4 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 1.2rem;
+    margin: 0.3rem 0;
+  }
+
+  .clip p {
+    margin: 0 0 0.75rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .date {
+    margin-top: auto;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .community {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .community li {
+    display: grid;
+    grid-template-columns: 11rem 1fr auto;
+    gap: 1.5rem;
+    align-items: center;
+    padding: 1.25rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.4s;
+  }
+
+  .community li:hover {
+    background: var(--bg-soft);
+  }
+
+  .role {
+    justify-self: start;
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    background: var(--gold-soft);
+    color: var(--gold);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .community strong {
+    font-weight: 600;
+  }
+
+  .community p {
+    margin: 0.15rem 0 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 900px) {
+    .media {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .community li {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+  }
+
+  @media (max-width: 500px) {
+    .media {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @keyframes scan {
+    0% {
+      transform: translateX(-100%);
+    }
+    40%,
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes eq {
+    from {
+      transform: scaleY(0.25);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 0.8;
+    }
+    100% {
+      transform: scale(1.6);
+      opacity: 0;
+    }
+  }
+</style>

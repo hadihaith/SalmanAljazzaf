@@ -1,36 +1,172 @@
 ---
-import { publications } from '../data/cv';
+import { conferencePapers, journalArticles, manuscripts } from '../data/cv';
+
+interface Pub {
+  title: string;
+  authors: string;
+  venue?: string;
+  year: string;
+  status?: string;
+  href?: string;
+}
+
+const groups: { id: string; label: string; items: Pub[] }[] = [
+  { id: 'journals', label: 'Journal articles', items: journalArticles },
+  { id: 'manuscripts', label: 'Under review', items: manuscripts },
+  { id: 'conferences', label: 'Conference papers', items: conferencePapers },
+];
 ---
 
 <section class="section" id="publications">
   <div class="container">
-    <span class="eyebrow" data-reveal>Publications</span>
-    <h2 class="section-title" data-reveal style="--i: 1">Selected works</h2>
+    <span class="eyebrow">Publications</span>
+    <h2 class="section-title" data-split>
+      Research <em>output</em>
+    </h2>
 
-    <ul class="list">
+    <div class="tabs" data-tabs>
+      <div class="tablist" role="tablist" aria-label="Publication types" data-reveal>
+        <span class="tab-indicator" aria-hidden="true"></span>
+        {
+          groups.map((group, i) => (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${group.id}`}
+              aria-controls={`panel-${group.id}`}
+              aria-selected={i === 0 ? 'true' : 'false'}
+              tabindex={i === 0 ? 0 : -1}
+            >
+              {group.label}
+              <span class="count">{group.items.length}</span>
+            </button>
+          ))
+        }
+      </div>
+
       {
-        publications.map((pub, i) => (
-          <li data-reveal style={`--i: ${i}`}>
-            <a href={pub.href} target="_blank" rel="noopener" class="pub">
-              <span class="year">{pub.year}</span>
-              <span class="body">
-                <span class="title">{pub.title}</span>
-                <span class="meta">
-                  {pub.authors} — <em>{pub.venue}</em>
-                </span>
-              </span>
-              <span class="arrow" aria-hidden="true">
-                →
-              </span>
-            </a>
-          </li>
+        groups.map((group, gi) => (
+          <ul
+            class="list"
+            role="tabpanel"
+            id={`panel-${group.id}`}
+            aria-labelledby={`tab-${group.id}`}
+            hidden={gi !== 0}
+          >
+            {group.items.map((pub, i) => {
+              const Tag = pub.href ? 'a' : 'div';
+              return (
+                <li data-reveal style={`--i: ${Math.min(i, 5)}`}>
+                  <Tag
+                    class="pub"
+                    {...(pub.href ? { href: pub.href, target: '_blank', rel: 'noopener' } : {})}
+                  >
+                    <span class="year">{pub.year}</span>
+                    <span class="body">
+                      {pub.status && <span class="status">{pub.status}</span>}
+                      <span class="title">{pub.title}</span>
+                      <span class="meta">
+                        {pub.authors}
+                        {pub.venue && (
+                          <>
+                            {' — '}
+                            <em>{pub.venue}</em>
+                          </>
+                        )}
+                      </span>
+                    </span>
+                    {pub.href && (
+                      <span class="arrow" aria-hidden="true">
+                        ↗
+                      </span>
+                    )}
+                  </Tag>
+                </li>
+              );
+            })}
+          </ul>
         ))
       }
-    </ul>
+    </div>
   </div>
 </section>
 
 <style>
+  .tablist {
+    position: relative;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0.35rem;
+    margin-bottom: 2.5rem;
+    border-radius: 999px;
+    background: var(--bg-soft);
+    border: 1px solid var(--border);
+  }
+
+  /* Pill that slides under the active tab */
+  .tab-indicator {
+    position: absolute;
+    top: var(--y, 0.35rem);
+    left: 0;
+    width: var(--w, 0);
+    height: var(--h, 0);
+    border-radius: 999px;
+    background: var(--text);
+    box-shadow: var(--shadow);
+    transform: translateX(var(--x, 0));
+    transition:
+      transform 0.6s var(--ease-spring),
+      width 0.6s var(--ease-spring),
+      top 0.4s var(--ease);
+  }
+
+  button {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.2rem;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color 0.4s var(--ease);
+  }
+
+  button:hover {
+    color: var(--text);
+  }
+
+  button[aria-selected='true'] {
+    color: #fff;
+  }
+
+  .count {
+    display: grid;
+    place-items: center;
+    min-width: 1.6rem;
+    height: 1.6rem;
+    padding-inline: 0.4rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    background: var(--accent-soft);
+    color: var(--accent);
+    transition:
+      background 0.4s,
+      color 0.4s;
+  }
+
+  button[aria-selected='true'] .count {
+    background: var(--gold);
+    color: #fff;
+  }
+
   .list {
     list-style: none;
     margin: 0;
@@ -41,73 +177,120 @@ import { publications } from '../data/cv';
   .pub {
     position: relative;
     display: grid;
-    grid-template-columns: 5rem 1fr auto;
-    gap: 1.5rem;
+    grid-template-columns: 6rem 1fr auto;
+    gap: 2rem;
     align-items: center;
-    padding: 1.5rem 0.5rem;
+    padding: 1.75rem 1rem;
     border-bottom: 1px solid var(--border);
     overflow: hidden;
     isolation: isolate;
+    transition: padding 0.5s var(--ease);
   }
 
-  /* Sweep highlight on hover */
-  .pub::before {
+  /* Ink fills linked rows from the bottom on hover */
+  a.pub::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, rgba(232, 194, 122, 0.08), transparent);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.5s var(--ease);
+    background: var(--text);
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.6s var(--ease);
     z-index: -1;
   }
 
-  .pub:hover::before {
-    transform: scaleX(1);
+  a.pub:hover::before {
+    transform: scaleY(1);
+  }
+
+  a.pub:hover {
+    padding-inline: 2rem;
   }
 
   .year {
     font-family: var(--font-serif);
-    color: var(--accent);
-    font-size: 1.1rem;
+    font-size: 2rem;
+    color: var(--gold);
   }
 
   .body {
     display: grid;
-    gap: 0.25rem;
+    gap: 0.4rem;
+  }
+
+  .status {
+    justify-self: start;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.65rem;
+    border-radius: 999px;
+    color: #1d7a4f;
+    background: rgba(34, 160, 107, 0.12);
   }
 
   .title {
-    font-size: 1.1rem;
-    font-weight: 500;
+    font-family: var(--font-serif);
+    font-size: clamp(1.05rem, 2vw, 1.3rem);
+    line-height: 1.35;
+    transition: color 0.4s;
   }
 
   .meta {
     color: var(--muted);
     font-size: 0.9rem;
+    transition: color 0.4s;
+  }
+
+  a.pub:hover .title {
+    color: #fff;
+  }
+
+  a.pub:hover .meta {
+    color: rgba(255, 255, 255, 0.7);
   }
 
   .arrow {
-    font-size: 1.25rem;
-    color: var(--muted);
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    font-size: 1.1rem;
     transition:
-      transform 0.4s var(--ease),
-      color 0.3s;
+      transform 0.5s var(--ease-spring),
+      background 0.4s,
+      color 0.4s,
+      border-color 0.4s;
   }
 
-  .pub:hover .arrow {
-    transform: translateX(6px);
-    color: var(--accent);
+  a.pub:hover .arrow {
+    transform: rotate(45deg) scale(1.1);
+    background: var(--gold);
+    border-color: var(--gold);
+    color: #fff;
   }
 
-  @media (max-width: 600px) {
+  @media (max-width: 700px) {
+    .tablist {
+      border-radius: var(--radius);
+    }
+
     .pub {
       grid-template-columns: 1fr auto;
       gap: 0.5rem 1rem;
+      padding-inline: 0.5rem;
+    }
+
+    a.pub:hover {
+      padding-inline: 1rem;
     }
 
     .year {
       grid-column: 1 / -1;
+      font-size: 1.4rem;
     }
   }
 </style>

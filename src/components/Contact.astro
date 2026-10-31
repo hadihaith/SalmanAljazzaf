@@ -4,62 +4,147 @@ import { profile } from '../data/cv';
 const year = new Date().getFullYear();
 ---
 
-<section class="section contact" id="contact">
-  <div class="container">
-    <span class="eyebrow" data-reveal>Contact</span>
-    <h2 data-reveal style="--i: 1">Let's connect.</h2>
-    <p data-reveal style="--i: 2">
-      {profile.department}, {profile.university} · {profile.location}
+<section class="contact" id="contact">
+  <div class="glow" aria-hidden="true"></div>
+  <div class="container inner">
+    <span class="eyebrow">Contact</span>
+    <h2 data-split>Let's <em>connect.</em></h2>
+    <p data-reveal style="--i: 1">
+      {profile.college}, {profile.university} · Office {profile.office}
     </p>
-    <a class="email" href={`mailto:${profile.email}`} data-reveal style="--i: 3">
+    <a class="email" href={`mailto:${profile.email}`} data-reveal style="--i: 2" data-magnetic>
       {profile.email}
     </a>
+    <ul class="links" data-reveal style="--i: 3">
+      {
+        profile.links
+          .filter((link) => !link.href.startsWith('mailto:'))
+          .map((link) => (
+            <li>
+              <a href={link.href} target="_blank" rel="noopener">
+                {link.label} ↗
+              </a>
+            </li>
+          ))
+      }
+    </ul>
   </div>
-</section>
 
-<footer class="footer">
-  <div class="container">© {year} {profile.name}. All rights reserved.</div>
-</footer>
+  <footer class="footer container">
+    <span>© {year} {profile.name}</span>
+    <a href="#top">Back to top ↑</a>
+  </footer>
+</section>
 
 <style>
   .contact {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--text);
+    color: #fff;
     text-align: center;
+    padding-top: clamp(5rem, 12vw, 9rem);
+  }
+
+  .glow {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    width: 900px;
+    height: 900px;
+    translate: -50% -50%;
+    z-index: -1;
+    background: conic-gradient(from 0deg, rgba(37, 70, 201, 0.5), rgba(192, 138, 30, 0.35), rgba(37, 70, 201, 0.5));
+    filter: blur(120px);
+    opacity: 0.6;
+    border-radius: 50%;
+    animation: spin 20s linear infinite;
+  }
+
+  .eyebrow {
+    color: var(--gold);
   }
 
   h2 {
-    font-size: clamp(2.5rem, 7vw, 5rem);
-    margin-bottom: 1rem;
+    font-size: clamp(3rem, 10vw, 7.5rem);
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+  }
+
+  h2 :global(em) {
+    color: var(--gold);
   }
 
   p {
-    color: var(--muted);
-    margin: 0 0 2rem;
+    color: rgba(255, 255, 255, 0.65);
+    margin: 0 0 2.5rem;
   }
 
   .email {
     display: inline-block;
     font-family: var(--font-serif);
-    font-size: clamp(1.25rem, 3vw, 2rem);
-    background: linear-gradient(90deg, var(--accent), var(--accent-2), var(--accent));
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    animation: shimmer 6s linear infinite;
+    font-size: clamp(1.2rem, 3.5vw, 2.2rem);
+    padding: 1rem 2rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(8px);
     word-break: break-all;
+    transition:
+      transform 0.4s var(--ease),
+      background 0.4s,
+      color 0.4s;
+  }
+
+  .email:hover {
+    background: #fff;
+    color: var(--text);
+  }
+
+  .links {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .links a {
+    color: rgba(255, 255, 255, 0.75);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    padding-bottom: 0.15rem;
+    transition:
+      color 0.3s,
+      border-color 0.3s;
+  }
+
+  .links a:hover {
+    color: var(--gold);
+    border-color: var(--gold);
   }
 
   .footer {
-    padding-block: 2rem;
-    border-top: 1px solid var(--border);
-    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: clamp(4rem, 10vw, 7rem);
+    padding-block: 1.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.55);
     font-size: 0.85rem;
-    text-align: center;
   }
 
-  @keyframes shimmer {
+  .footer a:hover {
+    color: #fff;
+  }
+
+  @keyframes spin {
     to {
-      background-position: 200% 0;
+      transform: rotate(1turn);
     }
   }
 </style>

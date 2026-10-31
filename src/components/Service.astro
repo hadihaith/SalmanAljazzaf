@@ -1,0 +1,193 @@
+---
+import { leadershipService, reviewing, universityService } from '../data/cv';
+---
+
+<section class="section alt" id="service">
+  <div class="container">
+    <span class="eyebrow">Academic & Professional Service</span>
+    <h2 class="section-title" data-split>
+      Serving <em>the discipline</em>
+    </h2>
+
+    <div class="leadership">
+      {
+        leadershipService.map((item, i) => (
+          <article class="card lead" data-reveal="scale" style={`--i: ${i}`} data-tilt="8">
+            <span class="date">{item.date}</span>
+            <h3>{item.role}</h3>
+            <p>{item.org}</p>
+          </article>
+        ))
+      }
+    </div>
+
+    <div class="split">
+      <div class="card review" data-reveal="left">
+        <div class="review-head">
+          <span class="big" data-count="20" data-suffix="+">20+</span>
+          <p>papers reviewed for Information Systems journals and conferences</p>
+        </div>
+        <h4>Journals</h4>
+        <ul class="pills">{reviewing.journals.map((j) => <li>{j}</li>)}</ul>
+        <h4>Conferences</h4>
+        <ul class="pills">{reviewing.conferences.map((c) => <li>{c}</li>)}</ul>
+      </div>
+
+      <div class="card university" data-reveal="right" style="--i: 1">
+        <h4>University service</h4>
+        <p class="where">College of Business Administration, Kuwait University</p>
+        <ul class="committees">
+          {
+            universityService.map((item) => (
+              <li>
+                <span>{item.role}</span>
+                <span class="date">{item.date}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="extra">Also a member and convener of several department-level committees.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .leadership {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+
+  .lead {
+    border-top: 3px solid var(--accent);
+  }
+
+  .lead:first-child {
+    border-top-color: var(--gold);
+  }
+
+  .lead h3 {
+    font-size: 1.25rem;
+    margin: 0.6rem 0 0.5rem;
+  }
+
+  .lead p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  .date {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .split {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+  }
+
+  .review-head {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .big {
+    font-family: var(--font-serif);
+    font-size: 4rem;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .review-head p {
+    margin: 0;
+    color: var(--muted);
+    max-width: 22ch;
+  }
+
+  h4 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 1.15rem;
+    margin: 0 0 0.75rem;
+  }
+
+  .pills {
+    list-style: none;
+    margin: 0 0 1.5rem;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .pills:last-child {
+    margin-bottom: 0;
+  }
+
+  .pills li {
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    background: var(--bg-soft);
+    font-size: 0.83rem;
+    transition:
+      background 0.3s,
+      color 0.3s,
+      transform 0.4s var(--ease-spring);
+  }
+
+  .pills li:hover {
+    background: var(--accent);
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
+  .where {
+    margin: -0.4rem 0 1.25rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .committees {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .committees li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+    transition: padding 0.4s var(--ease);
+  }
+
+  .committees li:hover {
+    padding-left: 0.5rem;
+  }
+
+  .extra {
+    margin: 1rem 0 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 900px) {
+    .leadership,
+    .split {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

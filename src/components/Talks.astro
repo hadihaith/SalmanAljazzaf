@@ -1,0 +1,149 @@
+---
+import { talks, workshops } from '../data/cv';
+---
+
+<section class="section" id="talks">
+  <div class="container">
+    <span class="eyebrow">Talks & Workshops</span>
+    <h2 class="section-title" data-split>
+      Sharing <em>the method</em>
+    </h2>
+
+    <div class="layout">
+      <div>
+        <h3 class="sub" data-reveal>Invited talks & presentations</h3>
+        <ol class="talks">
+          {
+            talks.map((talk, i) => (
+              <li data-reveal="left" style={`--i: ${i}`}>
+                <span class="date">{talk.date}</span>
+                <span class="type">{talk.type}</span>
+                <h4>{talk.title}</h4>
+                <p>{talk.where}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+
+      <div>
+        <h3 class="sub" data-reveal>Research methods workshops</h3>
+        <div class="workshops">
+          {
+            workshops.map((ws, i) => (
+              <article class="card workshop" data-reveal="right" style={`--i: ${i}`} data-tilt="6">
+                <span class="tag">QCA</span>
+                <span class="date">{ws.date}</span>
+                <h4>{ws.title}</h4>
+                <p>{ws.where}</p>
+                {ws.note && <p class="note">{ws.note}</p>}
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+
+  .sub {
+    font-size: 1.4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .talks {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-left: 2px solid var(--border);
+  }
+
+  .talks li {
+    position: relative;
+    padding: 0 0 2rem 1.75rem;
+  }
+
+  .talks li::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 0.3rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--gold);
+    transition:
+      background 0.4s,
+      transform 0.5s var(--ease-spring);
+  }
+
+  .talks li:hover::before {
+    background: var(--gold);
+    transform: scale(1.4);
+  }
+
+  .date {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .type {
+    margin-left: 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h4 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 1.15rem;
+    line-height: 1.35;
+    margin: 0.35rem 0;
+  }
+
+  p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.92rem;
+  }
+
+  .workshops {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .workshop .tag {
+    float: right;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: var(--text);
+    color: #fff;
+  }
+
+  .workshop .note {
+    margin-top: 0.6rem;
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  @media (max-width: 900px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
