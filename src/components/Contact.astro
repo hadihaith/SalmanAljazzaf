@@ -1,5 +1,6 @@
 ---
 import { profile } from '../data/cv';
+import SocialLinks from './SocialLinks.astro';
 
 const year = new Date().getFullYear();
 ---
@@ -15,10 +16,17 @@ const year = new Date().getFullYear();
     <a class="email" href={`mailto:${profile.email}`} data-reveal style="--i: 2" data-magnetic>
       {profile.email}
     </a>
-    <ul class="links" data-reveal style="--i: 3">
+    <p class="mail-hint" role="status" hidden>
+      Your mail app didn't open? Copy the address and write from any email account.
+      <button type="button" class="copy" data-copy={profile.email}>Copy email</button>
+    </p>
+    <div class="socials" data-reveal style="--i: 3">
+      <SocialLinks labeled />
+    </div>
+    <ul class="links" data-reveal style="--i: 4">
       {
         profile.links
-          .filter((link) => !link.href.startsWith('mailto:'))
+          .filter((link) => !link.social && !link.href.startsWith('mailto:'))
           .map((link) => (
             <li>
               <a href={link.href} target="_blank" rel="noopener">
@@ -35,6 +43,49 @@ const year = new Date().getFullYear();
     <a href="#top">Back to top ↑</a>
   </footer>
 </section>
+
+<script>
+  // mailto links give no error when no mail app is set up. Opening one normally takes
+  // focus away from the page, so if the page still has focus shortly after the click,
+  // assume nothing opened and bring the visitor to the address here instead.
+  const email = document.querySelector<HTMLElement>('.contact .email');
+  const hint = document.querySelector<HTMLElement>('.mail-hint');
+  const copy = document.querySelector<HTMLButtonElement>('.mail-hint .copy');
+
+  document.querySelectorAll<HTMLAnchorElement>('[data-mail-fallback]').forEach((link) => {
+    link.addEventListener('click', () => {
+      let left = false;
+      const markLeft = () => (left = true);
+      window.addEventListener('blur', markLeft, { once: true });
+      document.addEventListener('visibilitychange', markLeft, { once: true });
+      window.addEventListener('pagehide', markLeft, { once: true });
+
+      setTimeout(() => {
+        window.removeEventListener('blur', markLeft);
+        document.removeEventListener('visibilitychange', markLeft);
+        window.removeEventListener('pagehide', markLeft);
+        if (left || document.hidden || !document.hasFocus()) return;
+
+        document.getElementById('contact')?.scrollIntoView();
+        if (hint) hint.hidden = false;
+        email?.classList.remove('is-flagged');
+        void email?.offsetWidth; // restart the highlight if it runs twice
+        email?.classList.add('is-flagged');
+      }, 2000);
+    });
+  });
+
+  copy?.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(copy.dataset.copy ?? '');
+      copy.textContent = 'Copied ✓';
+    } catch {
+      // Clipboard blocked: select the address so it can be copied by hand
+      if (email) getSelection()?.selectAllChildren(email);
+      copy.textContent = 'Press Ctrl+C to copy';
+    }
+  });
+</script>
 
 <style>
   .contact {
@@ -102,10 +153,58 @@ const year = new Date().getFullYear();
     color: var(--text);
   }
 
+  /* Pulses gold when the visitor lands here because their mail app didn't open */
+  .email:global(.is-flagged) {
+    animation: flag 1.4s var(--ease) 0.6s 3;
+  }
+
+  .mail-hint {
+    margin: 1.25rem 0 0;
+    font-size: 0.9rem;
+  }
+
+  .mail-hint[hidden] {
+    display: none;
+  }
+
+  .copy {
+    margin-left: 0.5rem;
+    padding: 0.4rem 0.95rem;
+    border-radius: 999px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background 0.3s,
+      color 0.3s;
+  }
+
+  .copy:hover {
+    background: var(--gold);
+    color: var(--text);
+  }
+
+  @keyframes flag {
+    0% {
+      box-shadow: 0 0 0 0 rgba(192, 138, 30, 0.7);
+      border-color: var(--gold);
+    }
+    100% {
+      box-shadow: 0 0 0 22px rgba(192, 138, 30, 0);
+    }
+  }
+
+  .socials {
+    margin-top: 2.25rem;
+  }
+
   .links {
     list-style: none;
     padding: 0;
-    margin: 2rem 0 0;
+    margin: 1.5rem 0 0;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;

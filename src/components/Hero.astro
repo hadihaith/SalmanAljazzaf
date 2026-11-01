@@ -4,6 +4,42 @@ import { focusAreas, profile } from '../data/cv';
 import portrait from '../assets/profile-cutout.png';
 
 const nameWords = profile.shortName.split(' ');
+
+const degrees = [
+  { icon: '🎓', degree: 'Ph.D. in Information Systems', school: 'University of Maryland' },
+  { icon: '📘', degree: 'MBA', school: 'University of Maryland' },
+  { icon: '💻', degree: 'B.Sc. in Computer Engineering', school: 'Kuwait University' },
+];
+
+const availability = ['Speaking', 'Workshops', 'Consulting', 'Conferences', 'Research Collaboration'];
+
+// Opens the visitor's mail app with the address, subject and a fill-in template ready to go
+const inviteSubject = 'Inquiry: Speaking, Workshop, Consulting, Conference, or Research Collaboration';
+const inviteBody = [
+  'Dear Dr. Aljazzaf,',
+  '',
+  'I am reaching out to explore a possible opportunity to work with you. I am interested in (please mark all that apply):',
+  '',
+  '[ ] Speaking engagement (keynote, talk, or panel)',
+  '[ ] Workshop or training',
+  '[ ] Consulting',
+  '[ ] Conference participation',
+  '[ ] Research collaboration',
+  '',
+  'Details:',
+  '- Organization:',
+  '- Proposed date(s):',
+  '- Format (in person / online):',
+  '- Brief description:',
+  '',
+  'I look forward to hearing from you.',
+  '',
+  'Kind regards,',
+  '[Your name]',
+  '[Your title and organization]',
+  '[Phone]',
+].join('\r\n');
+const inviteHref = `mailto:${profile.email}?subject=${encodeURIComponent(inviteSubject)}&body=${encodeURIComponent(inviteBody)}`;
 ---
 
 <section class="hero" id="top">
@@ -39,7 +75,14 @@ const nameWords = profile.shortName.split(' ');
 
       <p class="focus anim" style="--d: 5">
         Researching{' '}
-        <span class="rotator" data-rotate={JSON.stringify(focusAreas)}>{focusAreas[0]}</span>
+        {
+          focusAreas.map((area, i) => (
+            <>
+              <span class="area">{/^.[a-z-]/.test(area) ? area[0].toLowerCase() + area.slice(1) : area}</span>
+              {i < focusAreas.length - 2 ? ', ' : i === focusAreas.length - 2 ? ', and ' : '.'}
+            </>
+          ))
+        }
       </p>
 
       <div class="actions anim" style="--d: 6">
@@ -51,6 +94,7 @@ const nameWords = profile.shortName.split(' ');
       </div>
     </div>
 
+    <div class="figure">
     <div class="visual anim-pop" style="--d: 3">
       <div class="portrait">
         <div class="ring"></div>
@@ -71,18 +115,35 @@ const nameWords = profile.shortName.split(' ');
         </div>
       </div>
 
-      <div class="chip chip-1">
-        <span class="chip-icon">🎓</span>
-        <span><strong>Ph.D.</strong> University of Maryland</span>
-      </div>
-      <div class="chip chip-2">
-        <span class="chip-icon cisco">⌁</span>
-        <span><strong>Cisco</strong> CCNA certified</span>
-      </div>
-      <div class="chip chip-3">
-        <span class="chip-icon">◆</span>
-        <span><strong>AIS GCC</strong> Chapter Secretary</span>
-      </div>
+    </div>
+
+    <ul class="degrees">
+      {
+        degrees.map((d, i) => (
+          <li class="chip" style={`--i: ${i}`}>
+            <span class="chip-icon">{d.icon}</span>
+            <span class="chip-text">
+              <strong>{d.degree}</strong>
+              <span>from {d.school}</span>
+            </span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="avail anim" style="--d: 7">
+      <p>
+        <span class="pulse"></span>
+        <span>
+          <strong>Available for</strong>
+          {availability.slice(0, -1).join(', ')} and {availability.at(-1)}
+        </span>
+      </p>
+      <a class="btn primary invite" href={inviteHref} data-mail-fallback data-magnetic>
+        <span aria-hidden="true">✉</span>
+        Email an invitation
+      </a>
+    </div>
     </div>
   </div>
 
@@ -173,7 +234,7 @@ const nameWords = profile.shortName.split(' ');
   /* ---------- Layout ---------- */
   .content {
     display: grid;
-    grid-template-columns: 1.25fr 1fr;
+    grid-template-columns: 1fr auto;
     align-items: center;
     gap: 3rem;
     padding-block: 7rem 5rem;
@@ -244,21 +305,10 @@ const nameWords = profile.shortName.split(' ');
     margin: 0 0 2.25rem;
   }
 
-  .rotator {
-    display: inline-block;
+  .area {
     color: var(--accent);
     font-weight: 600;
     background: linear-gradient(transparent 62%, var(--accent-soft) 62%);
-    transition:
-      opacity 0.45s var(--ease),
-      transform 0.45s var(--ease),
-      filter 0.45s var(--ease);
-  }
-
-  .rotator:global(.is-out) {
-    opacity: 0;
-    transform: translateY(-12px);
-    filter: blur(6px);
   }
 
   .actions {
@@ -314,10 +364,17 @@ const nameWords = profile.shortName.split(' ');
   }
 
   /* ---------- Portrait ---------- */
+  /* Portrait with the degree tags stacked beside it on the right */
+  .figure {
+    display: grid;
+    grid-template-columns: auto auto;
+    align-items: center;
+  }
+
   .visual {
     position: relative;
-    justify-self: center;
-    width: min(400px, 80vw);
+    flex: none;
+    width: min(380px, 30vw);
     aspect-ratio: 1;
     translate: calc(var(--hx) * 24px) calc(var(--hy) * 24px);
     transition: translate 1s var(--ease);
@@ -417,12 +474,66 @@ const nameWords = profile.shortName.split(' ');
     animation-direction: reverse;
   }
 
+  /* Availability note under the portrait */
+  .avail {
+    grid-column: 1 / -1;
+    /* Match the portrait + degrees width rather than widening the column */
+    width: 0;
+    min-width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem 1.25rem;
+    margin-top: 1.5rem;
+    padding: 1rem 1rem 1rem 1.25rem;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .avail p {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .avail strong {
+    display: block;
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .avail .pulse {
+    flex: none;
+    translate: 0 -0.1em;
+  }
+
+  .invite {
+    flex: none;
+    padding: 0.8rem 1.25rem;
+    font-size: 0.88rem;
+  }
+
+  .degrees {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 0.85rem;
+    margin: 0 0 0 -3.5rem;
+    padding: 0;
+    list-style: none;
+  }
+
   .chip {
-    position: absolute;
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.6rem 1rem 0.6rem 0.6rem;
+    padding: 0.6rem 1.15rem 0.6rem 0.6rem;
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.88);
     border: 1px solid var(--border);
@@ -434,6 +545,17 @@ const nameWords = profile.shortName.split(' ');
     animation:
       chip-in 0.9s var(--ease-spring) both,
       bob 6s ease-in-out infinite;
+    /* Staggered entrance, but they bob together so the stack stays aligned */
+    animation-delay: calc(1.6s + var(--i) * 0.2s), 0s;
+  }
+
+  .chip-text {
+    display: grid;
+    line-height: 1.3;
+  }
+
+  .chip-text span {
+    font-size: 0.76rem;
   }
 
   .chip strong {
@@ -442,6 +564,7 @@ const nameWords = profile.shortName.split(' ');
   }
 
   .chip-icon {
+    flex: none;
     display: grid;
     place-items: center;
     width: 30px;
@@ -451,29 +574,6 @@ const nameWords = profile.shortName.split(' ');
     font-size: 0.9rem;
   }
 
-  .chip-icon.cisco {
-    background: #e6f4fb;
-    color: #049fd9;
-    font-weight: 700;
-  }
-
-  .chip-1 {
-    top: 6%;
-    left: -12%;
-    animation-delay: 1.6s, 0s;
-  }
-
-  .chip-2 {
-    top: 64%;
-    right: -6%;
-    animation-delay: 1.8s, -2s;
-  }
-
-  .chip-3 {
-    bottom: 2%;
-    left: -6%;
-    animation-delay: 2s, -4s;
-  }
 
   .scroll-cue {
     position: absolute;
@@ -535,25 +635,39 @@ const nameWords = profile.shortName.split(' ');
       justify-content: center;
     }
 
+    /* Portrait and degrees above the name, availability note below the buttons */
+    .figure {
+      display: contents;
+    }
+
     .visual {
+      order: -2;
+      justify-self: center;
+      width: min(250px, 66vw);
+    }
+
+    .degrees {
       order: -1;
-      width: min(300px, 72vw);
+      justify-self: center;
+      width: fit-content;
+      margin: -2rem 0 0;
+      gap: 0.6rem;
+      text-align: left;
     }
 
     .chip {
-      font-size: 0.72rem;
+      font-size: 0.78rem;
     }
 
-    .chip-1 {
-      left: -10%;
+    .avail {
+      flex-direction: column;
+      margin-top: -1rem;
+      text-align: left;
     }
 
-    .chip-2 {
-      right: -6%;
-    }
-
-    .chip-3 {
-      display: none;
+    .invite {
+      align-self: stretch;
+      justify-content: center;
     }
 
     .scroll-cue {

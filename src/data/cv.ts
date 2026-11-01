@@ -15,7 +15,8 @@ export const profile = {
     'Assistant Professor of Information Systems at Kuwait University, researching how organizations create business value from information technology — with interests in IT governance, digital platforms, e-government, and digital transformation.',
   bio: 'His teaching and research methods training include qualitative comparative analysis (QCA). His academic leadership includes serving as Head of the Consulting and Training Office at the College of Business Administration, and as a founding executive committee member and Secretary of the AIS GCC Chapter. He holds a Ph.D. in Information Systems and an MBA from the Robert H. Smith School of Business, University of Maryland, and a B.Sc. in Computer Engineering from Kuwait University — and before academia spent six years as a network and telecommunications engineer at the Kuwait National Petroleum Company.',
   links: [
-    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/aljazzaf/' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/aljazzaf/', social: true },
+    { label: 'Google Scholar', href: 'https://scholar.google.com/citations?user=HRx33SMAAAAJ&hl=en', social: true },
     { label: 'Kuwait University profile', href: 'https://cba.ku.edu.kw/user/6413' },
     { label: 'Email', href: 'mailto:salman.aljazzaf@ku.edu.kw' },
   ],
@@ -70,10 +71,6 @@ export const skills = [
   {
     group: 'Research methods & analytics',
     items: ['fsQCA', 'R', 'UCINET', 'Mplus', 'XLMiner', 'StatTools', 'PrecisionTree'],
-  },
-  {
-    group: 'Programming & web',
-    items: ['C/C++', 'Java', 'JDBC', 'Servlets', 'JSP', 'HTML', 'JavaScript', 'CSS', 'PHP'],
   },
 ];
 

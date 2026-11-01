@@ -128,21 +128,6 @@ document.querySelectorAll<HTMLElement>('[data-tabs]').forEach((tabs) => {
   document.fonts?.ready.then(moveIndicator);
 });
 
-// Rotating tagline in the hero
-const rotator = document.querySelector<HTMLElement>('[data-rotate]');
-if (rotator && !reduceMotion) {
-  const words: string[] = JSON.parse(rotator.dataset.rotate ?? '[]');
-  let index = 0;
-  setInterval(() => {
-    rotator.classList.add('is-out');
-    setTimeout(() => {
-      index = (index + 1) % words.length;
-      rotator.textContent = words[index];
-      rotator.classList.remove('is-out');
-    }, 450);
-  }, 2800);
-}
-
 // Scroll-linked effects: progress bar, header, timelines, parallax
 const progress = document.querySelector<HTMLElement>('.scroll-progress');
 const header = document.querySelector<HTMLElement>('.site-header');

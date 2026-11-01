@@ -1,0 +1,99 @@
+---
+import { Image } from 'astro:assets';
+import { profile } from '../data/cv';
+import linkedin from '../assets/linkedin.png';
+import scholar from '../assets/google-scholar.png';
+
+interface Props {
+  /** Show the site name next to each logo (pill buttons) instead of icon-only circles */
+  labeled?: boolean;
+}
+
+const { labeled = false } = Astro.props;
+
+const logos: Record<string, ImageMetadata> = {
+  LinkedIn: linkedin,
+  'Google Scholar': scholar,
+};
+const socials = profile.links.filter((link) => link.social);
+const size = labeled ? 20 : 18;
+---
+
+<ul class:list={['socials', { labeled }]}>
+  {
+    socials.map((link) => (
+      <li>
+        <a
+          href={link.href}
+          target="_blank"
+          rel="noopener"
+          aria-label={labeled ? undefined : `${link.label} (opens in a new tab)`}
+          title={link.label}
+        >
+          <Image src={logos[link.label]} alt="" width={size} height={size} densities={[1, 2, 3]} />
+          {labeled && <span>{link.label}</span>}
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .socials {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid var(--border);
+    transition:
+      transform 0.4s var(--ease-spring),
+      box-shadow 0.4s var(--ease),
+      border-color 0.3s;
+  }
+
+  a:hover {
+    transform: translateY(-2px);
+    border-color: transparent;
+    box-shadow: var(--shadow-lg);
+  }
+
+  img {
+    display: block;
+    object-fit: contain;
+  }
+
+  /* Pill buttons with the site name, for the dark contact section */
+  .labeled {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .labeled a {
+    display: flex;
+    gap: 0.6rem;
+    width: auto;
+    height: auto;
+    padding: 0.7rem 1.3rem 0.7rem 1rem;
+    border-radius: 999px;
+    background: #fff;
+    border-color: #fff;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .labeled a:hover {
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  }
+</style>

@@ -1,5 +1,6 @@
 ---
 import { nav, profile } from '../data/cv';
+import SocialLinks from './SocialLinks.astro';
 ---
 
 <div class="scroll-progress" aria-hidden="true"></div>
@@ -12,6 +13,7 @@ import { nav, profile } from '../data/cv';
     <nav class="nav" aria-label="Sections">
       {nav.map((item) => <a href={item.href}>{item.label}</a>)}
     </nav>
+    <SocialLinks />
   </div>
 </header>
 
@@ -55,8 +57,12 @@ import { nav, profile } from '../data/cv';
   .inner {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 1rem;
+  }
+
+  /* Push the nav and social buttons to the right */
+  .brand {
+    margin-right: auto;
   }
 
   .brand {
