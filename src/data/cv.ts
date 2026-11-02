@@ -474,6 +474,14 @@ const youtubeThumb = (href?: string) => {
 
 export const media = [
   {
+    outlet: 'Kuwait TV, News Channel',
+    show: 'Money & Business',
+    topic: 'Artificial intelligence',
+    date: '26 March 2025',
+    // Self-hosted: the original YouTube channel was closed. Poster comes from scripts/social-images.mjs
+    video: { file: 'video/money-and-business-2025.mp4', poster: 'video/money-and-business-2025.jpg', duration: 1074 },
+  },
+  {
     outlet: 'Tharwa Podcast',
     show: 'Interview',
     topic: 'The growth of digital businesses',
@@ -485,6 +493,12 @@ export const media = [
     show: 'Shabab-dot-com',
     topic: 'The digital economy',
     date: '21 August 2021',
+    // Files live in public/audio; durations in seconds so the player can show them before loading
+    audio: [
+      { label: 'Part 1', file: 'audio/radio-interview-2021-part-1.mp3', duration: 1292 },
+      { label: 'Part 2', file: 'audio/radio-interview-2021-part-2.mp3', duration: 905 },
+      { label: 'Part 3', file: 'audio/radio-interview-2021-part-3.mp3', duration: 734 },
+    ],
   },
   {
     outlet: 'Kuwait TV, Channel 1',

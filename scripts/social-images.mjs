@@ -3,6 +3,7 @@
 //   public/portrait.jpg          600×600 portrait for structured data
 //   public/apple-touch-icon.png  180×180 home-screen icon
 //   public/favicon-32.png        32×32 PNG fallback for browsers without SVG favicons
+//   public/video/*.jpg           posters for self-hosted media videos
 // Run with: npm run social-images
 import sharp from 'sharp';
 
@@ -72,6 +73,52 @@ await sharp(Buffer.from(background))
   .flatten({ background: paper })
   .jpeg({ quality: 86, mozjpeg: true })
   .toFile(out('og-image.jpg'));
+
+// ---------- Video poster: Money & Business (Kuwait TV) ----------
+{
+  const PW = 1280;
+  const PH = 720;
+  const pcx = 960;
+  const pcy = 360;
+  const pr = 250;
+  const poster = `
+<svg width="${PW}" height="${PH}" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${navy}"/><stop offset="1" stop-color="#22336b"/></linearGradient>
+    <radialGradient id="glow" cx="75%" cy="50%" r="45%"><stop offset="0" stop-color="${blue}" stop-opacity="0.55"/><stop offset="1" stop-color="${blue}" stop-opacity="0"/></radialGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${blue}"/><stop offset="0.5" stop-color="${gold}"/><stop offset="1" stop-color="${blue}"/></linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0H0V40" fill="none" stroke="rgba(255,255,255,0.05)"/></pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bg)"/>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+  <rect width="100%" height="100%" fill="url(#glow)"/>
+  <circle cx="${pcx}" cy="${pcy}" r="${pr + 24}" fill="none" stroke="#fff" stroke-opacity="0.15" stroke-width="2"/>
+  <circle cx="${pcx}" cy="${pcy}" r="${pr}" fill="#ffffff"/>
+  <circle cx="${pcx}" cy="${pcy}" r="${pr - 3}" fill="none" stroke="url(#rim)" stroke-width="6"/>
+
+  <rect x="80" y="170" width="44" height="3" fill="${gold}"/>
+  <text x="136" y="178" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="3" fill="${gold}">KUWAIT TV · NEWS CHANNEL</text>
+  <text x="76" y="290" font-family="Georgia, 'Times New Roman', serif" font-size="96" letter-spacing="-2" fill="#ffffff">Money &amp;</text>
+  <text x="76" y="392" font-family="Georgia, 'Times New Roman', serif" font-size="96" letter-spacing="-2" fill="#ffffff">Business</text>
+  <text x="80" y="460" font-family="Segoe UI, Tahoma, Arial, sans-serif" font-size="40" font-weight="600" fill="rgba(255,255,255,0.75)">مال و أعمال</text>
+  <rect x="80" y="510" width="420" height="52" rx="26" fill="rgba(255,255,255,0.12)"/>
+  <text x="290" y="544" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="600" fill="#ffffff">On artificial intelligence · 2025</text>
+  <rect x="0" y="${PH - 8}" width="${PW}" height="8" fill="url(#rim)"/>
+</svg>`;
+  const size = 600;
+  const face = await sharp(cutout).resize(size, size).toBuffer();
+  // Keep the shoulders inside the circle: clip the cut-out to the lower half of the disc
+  const mask = Buffer.from(`<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${size}" height="${size / 2}" fill="#fff"/>
+    <circle cx="${size / 2}" cy="${size / 2 - 8}" r="${pr}" fill="#fff"/>
+  </svg>`);
+  const clipped = await sharp(face).composite([{ input: mask, blend: 'dest-in' }]).png().toBuffer();
+  await sharp(Buffer.from(poster))
+    .composite([{ input: clipped, left: pcx - size / 2, top: pcy - size / 2 }])
+    .flatten({ background: navy })
+    .jpeg({ quality: 82, mozjpeg: true })
+    .toFile(out('video/money-and-business-2025.jpg'));
+}
 
 // ---------- Square portrait on white ----------
 await sharp(cutout).resize(600, 600).flatten({ background: '#ffffff' }).jpeg({ quality: 88, mozjpeg: true }).toFile(out('portrait.jpg'));

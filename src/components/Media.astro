@@ -1,5 +1,8 @@
 ---
-import { community, media } from '../data/cv';
+import { community, media, profile } from '../data/cv';
+
+const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+const formatTime = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 ---
 
 <section class="section" id="media">
@@ -13,6 +16,114 @@ import { community, media } from '../data/cv';
     <div class="media">
       {
         media.map((item, i) => {
+          if (item.video) {
+            const poster = `${base}/${item.video.poster}`;
+            return (
+              // Links straight to the file, so it still plays if the script doesn't run
+              <a
+                class="card clip playable"
+                href={`${base}/${item.video.file}`}
+                data-reveal="scale"
+                style={`--i: ${i}`}
+                data-tilt="10"
+                data-video
+                data-poster={poster}
+                data-caption={`${item.show} · ${item.outlet} · ${item.date}`}
+              >
+                <span class="screen">
+                  <img
+                    src={poster}
+                    alt={`${item.outlet} — ${item.show} video poster`}
+                    width="1280"
+                    height="720"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <span class="play" aria-hidden="true">
+                    ▶
+                  </span>
+                  <span class="length">{formatTime(item.video.duration)}</span>
+                </span>
+                <span class="outlet">{item.outlet}</span>
+                <h4>{item.show}</h4>
+                <p>On {item.topic.toLowerCase()}</p>
+                <span class="date">{item.date} · Watch</span>
+              </a>
+            );
+          }
+
+          if (item.audio) {
+            const first = item.audio[0];
+            return (
+              <div
+                class="card clip radio"
+                data-reveal="scale"
+                style={`--i: ${i}`}
+                data-player
+                data-title={`${item.show} (${item.outlet})`}
+                data-artist={profile.name}
+                data-artwork={`${base}/portrait.jpg`}
+              >
+                <span class="screen">
+                  <span class="wave" aria-hidden="true">
+                    {Array.from({ length: 9 }, (_, b) => (
+                      <i style={`--b: ${b}`} />
+                    ))}
+                  </span>
+                  <button type="button" class="play" data-toggle aria-label={`Play ${first.label}`}>
+                    <span class="icon-play" aria-hidden="true">▶</span>
+                    <span class="icon-pause" aria-hidden="true" />
+                  </button>
+                  <span class="now" aria-hidden="true" data-now>
+                    {first.label}
+                  </span>
+                </span>
+                <span class="outlet">{item.outlet}</span>
+                <h4>{item.show}</h4>
+                <p>On {item.topic.toLowerCase()}</p>
+
+                <div class="player">
+                  <audio preload="none" />
+                  <div class="parts" role="group" aria-label="Interview parts">
+                    {item.audio.map((part, p) => (
+                      <button
+                        type="button"
+                        class="part"
+                        data-part={p}
+                        data-src={`${base}/${part.file}`}
+                        data-duration={part.duration}
+                        aria-pressed={p === 0 ? 'true' : 'false'}
+                      >
+                        <strong>{part.label}</strong>
+                        <span>{formatTime(part.duration)}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div class="transport">
+                    <button type="button" class="mini" data-toggle aria-label={`Play ${first.label}`}>
+                      <span class="icon-play" aria-hidden="true">▶</span>
+                      <span class="icon-pause" aria-hidden="true" />
+                    </button>
+                    <input
+                      type="range"
+                      class="seek"
+                      min="0"
+                      max={first.duration}
+                      step="1"
+                      value="0"
+                      aria-label="Seek"
+                    />
+                    <span class="time" data-time>
+                      0:00 / {formatTime(first.duration)}
+                    </span>
+                  </div>
+                </div>
+
+                <span class="date">{item.date} · Listen</span>
+              </div>
+            );
+          }
+
           const Tag = item.href ? 'a' : 'div';
           return (
             <Tag
@@ -56,6 +167,15 @@ import { community, media } from '../data/cv';
       }
     </div>
 
+    <!-- Pop-up player for self-hosted videos; nothing loads until a card is opened -->
+    <dialog class="lightbox" aria-label="Video player">
+      <div class="frame">
+        <button type="button" class="close" aria-label="Close video">✕</button>
+        <video controls playsinline preload="none"></video>
+        <p class="caption"></p>
+      </div>
+    </dialog>
+
     <h3 class="sub" data-reveal>Community engagement</h3>
     <ul class="community">
       {
@@ -82,6 +202,157 @@ import { community, media } from '../data/cv';
     img.addEventListener('load', check);
     img.addEventListener('error', () => img.classList.add('is-missing'));
   });
+
+  // Video cards open in a pop-up player instead of navigating to the file
+  const lightbox = document.querySelector<HTMLDialogElement>('.lightbox');
+  const lightboxVideo = lightbox?.querySelector('video');
+  const lightboxCaption = lightbox?.querySelector<HTMLElement>('.caption');
+
+  document.querySelectorAll<HTMLAnchorElement>('[data-video]').forEach((card) => {
+    card.addEventListener('click', (event) => {
+      if (!lightbox || !lightboxVideo || typeof lightbox.showModal !== 'function') return;
+      event.preventDefault();
+      // Keep the position if the same video is reopened (both URLs are absolute here)
+      if (lightboxVideo.src !== card.href) {
+        lightboxVideo.src = card.href;
+        lightboxVideo.poster = card.dataset.poster ?? '';
+      }
+      if (lightboxCaption) lightboxCaption.textContent = card.dataset.caption ?? '';
+      lightbox.showModal();
+      lightboxVideo.play().catch(() => {});
+    });
+  });
+
+  // Pause as we close rather than waiting for the dialog's async 'close' event
+  function closeLightbox() {
+    lightboxVideo?.pause();
+    lightbox?.close();
+  }
+
+  lightbox?.querySelector('.close')?.addEventListener('click', closeLightbox);
+  // Clicking the dimmed backdrop (the dialog itself, outside the frame) closes it
+  lightbox?.addEventListener('click', (event) => {
+    if (event.target === lightbox) closeLightbox();
+  });
+  // Escape key
+  lightbox?.addEventListener('cancel', () => lightboxVideo?.pause());
+  lightbox?.addEventListener('close', () => lightboxVideo?.pause());
+
+  // Only one recording plays at a time
+  document.addEventListener(
+    'play',
+    (event) => {
+      document.querySelectorAll<HTMLMediaElement>('#media audio, #media video').forEach((media) => {
+        if (media !== event.target) media.pause();
+      });
+    },
+    true,
+  );
+
+  // Radio interview player: one <audio> element switching between the parts
+  const formatTime = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+  document.querySelectorAll<HTMLElement>('[data-player]').forEach((card) => {
+    const audio = card.querySelector('audio')!;
+    const parts = [...card.querySelectorAll<HTMLButtonElement>('.part')];
+    const toggles = card.querySelectorAll<HTMLButtonElement>('[data-toggle]');
+    const seek = card.querySelector<HTMLInputElement>('.seek')!;
+    const time = card.querySelector<HTMLElement>('[data-time]')!;
+    const now = card.querySelector<HTMLElement>('[data-now]')!;
+
+    let current = 0;
+    let loaded = -1; // index whose file is set on the <audio>, so nothing downloads until first play
+    let dragging = false;
+
+    const label = () => parts[current].querySelector('strong')!.textContent ?? '';
+    const duration = () => (Number.isFinite(audio.duration) && loaded === current ? audio.duration : Number(parts[current].dataset.duration));
+
+    function render() {
+      const position = loaded === current ? audio.currentTime : 0;
+      const total = duration();
+      if (!dragging) seek.value = String(position);
+      seek.max = String(Math.round(total));
+      seek.style.setProperty('--p', `${(Number(seek.value) / total) * 100}%`);
+      time.textContent = `${formatTime(Number(seek.value))} / ${formatTime(total)}`;
+      const action = audio.paused ? 'Play' : 'Pause';
+      toggles.forEach((t) => t.setAttribute('aria-label', `${action} ${label()}`));
+      card.classList.toggle('is-playing', !audio.paused);
+    }
+
+    function select(index: number, autoplay: boolean) {
+      current = index;
+      parts.forEach((p, i) => p.setAttribute('aria-pressed', String(i === index)));
+      now.textContent = label();
+      if (loaded !== index) {
+        audio.src = parts[index].dataset.src!;
+        loaded = index;
+      }
+      if (autoplay) audio.play().catch(() => {});
+      updateMediaSession();
+      render();
+    }
+
+    function toggle() {
+      if (loaded !== current) select(current, true);
+      else if (audio.paused) audio.play().catch(() => {});
+      else audio.pause();
+    }
+
+    toggles.forEach((t) => t.addEventListener('click', toggle));
+    parts.forEach((p, i) =>
+      p.addEventListener('click', () => {
+        if (i === current && loaded === i) toggle();
+        else select(i, true);
+      }),
+    );
+
+    seek.addEventListener('input', () => {
+      dragging = true;
+      render();
+    });
+    seek.addEventListener('change', () => {
+      dragging = false;
+      const target = Number(seek.value);
+      if (loaded !== current) select(current, true);
+      // Setting currentTime before metadata loads is ignored, so wait for it if needed
+      if (audio.readyState >= 1) audio.currentTime = target;
+      else audio.addEventListener('loadedmetadata', () => (audio.currentTime = target), { once: true });
+      render();
+    });
+
+    audio.addEventListener('timeupdate', render);
+    audio.addEventListener('loadedmetadata', render);
+    audio.addEventListener('play', render);
+    audio.addEventListener('pause', render);
+    // Carry on into the next part, and stop after the last one
+    audio.addEventListener('ended', () => {
+      if (current < parts.length - 1) select(current + 1, true);
+      else render();
+    });
+
+    // Lock-screen / headphone controls on phones
+    function updateMediaSession() {
+      if (!('mediaSession' in navigator)) return;
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: `${card.dataset.title} · ${label()}`,
+        artist: card.dataset.artist,
+        artwork: [{ src: card.dataset.artwork!, sizes: '600x600', type: 'image/jpeg' }],
+      });
+    }
+
+    if ('mediaSession' in navigator) {
+      const session = navigator.mediaSession;
+      session.setActionHandler('play', () => audio.play());
+      session.setActionHandler('pause', () => audio.pause());
+      session.setActionHandler('previoustrack', () => select(Math.max(current - 1, 0), true));
+      session.setActionHandler('nexttrack', () => select(Math.min(current + 1, parts.length - 1), true));
+      session.setActionHandler('seekto', (details) => {
+        if (details.seekTime != null) audio.currentTime = details.seekTime;
+      });
+    }
+
+    render();
+  });
 </script>
 
 <style>
@@ -92,7 +363,7 @@ import { community, media } from '../data/cv';
 
   .media {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.25rem;
     margin-bottom: 4rem;
   }
@@ -249,6 +520,319 @@ import { community, media } from '../data/cv';
     white-space: nowrap;
   }
 
+  /* Running time badge, like on video sites */
+  .length {
+    position: absolute;
+    z-index: 2;
+    right: 0.6rem;
+    bottom: 0.6rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- Video pop-up ---------- */
+  .lightbox {
+    width: min(1000px, calc(100vw - 2rem));
+    max-width: none;
+    max-height: calc(100dvh - 2rem);
+    padding: 0;
+    border: none;
+    border-radius: 18px;
+    background: #0b1224;
+    color: #fff;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+    overflow: visible;
+  }
+
+  .lightbox[open] {
+    animation: lightbox-in 0.5s var(--ease);
+  }
+
+  .lightbox::backdrop {
+    background: rgba(11, 18, 36, 0.78);
+    backdrop-filter: blur(6px);
+  }
+
+  .frame {
+    position: relative;
+    padding: 0.75rem;
+  }
+
+  .lightbox video {
+    display: block;
+    width: 100%;
+    max-height: calc(100dvh - 7rem);
+    aspect-ratio: 16 / 9;
+    border-radius: 10px;
+    background: #000;
+  }
+
+  .caption {
+    margin: 0.7rem 0.25rem 0.1rem;
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .close {
+    position: absolute;
+    z-index: 1;
+    top: -0.9rem;
+    right: -0.9rem;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: #fff;
+    color: var(--text);
+    font-size: 1rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    transition: transform 0.4s var(--ease-spring);
+  }
+
+  .close:hover {
+    transform: rotate(90deg);
+  }
+
+  @media (max-width: 600px) {
+    .frame {
+      padding: 0.5rem;
+    }
+
+    /* No room to overhang the frame on a phone */
+    .close {
+      top: 0.9rem;
+      right: 0.9rem;
+      width: 36px;
+      height: 36px;
+    }
+  }
+
+  @keyframes lightbox-in {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.96);
+    }
+  }
+
+  /* ---------- Radio interview player ---------- */
+  .radio .play {
+    border: none;
+    cursor: pointer;
+    font: inherit;
+  }
+
+  .radio .play:hover {
+    transform: scale(1.12);
+  }
+
+  .radio:hover .play {
+    transform: none;
+  }
+
+  /* Equalizer only dances while audio is playing */
+  .radio .wave {
+    transition: opacity 0.5s var(--ease);
+  }
+
+  .radio .wave i {
+    animation-play-state: paused;
+  }
+
+  .radio:global(.is-playing) .wave {
+    opacity: 0.85;
+  }
+
+  .radio:global(.is-playing) .wave i {
+    animation-play-state: running;
+  }
+
+  .radio:global(.is-playing) .play {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  /* Bring the button back on hover/focus so it can be paused from the screen too */
+  .radio:global(.is-playing) .screen:hover .play,
+  .radio:global(.is-playing) .play:focus-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .now {
+    position: absolute;
+    z-index: 2;
+    left: 0.75rem;
+    bottom: 0.6rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(6px);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .icon-pause {
+    display: none;
+    width: 12px;
+    height: 14px;
+    border-left: 4px solid currentColor;
+    border-right: 4px solid currentColor;
+  }
+
+  .radio:global(.is-playing) .icon-play {
+    display: none;
+  }
+
+  .radio:global(.is-playing) .icon-pause {
+    display: block;
+  }
+
+  .player {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .parts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.4rem;
+  }
+
+  .part {
+    display: grid;
+    justify-items: center;
+    gap: 0.05rem;
+    min-height: 44px;
+    padding: 0.4rem 0.25rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-soft);
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition:
+      background 0.3s,
+      color 0.3s,
+      border-color 0.3s;
+  }
+
+  .part strong {
+    font-size: 0.8rem;
+    color: var(--text);
+  }
+
+  .part:hover {
+    border-color: var(--accent);
+  }
+
+  .part[aria-pressed='true'] {
+    background: var(--text);
+    border-color: var(--text);
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .part[aria-pressed='true'] strong {
+    color: #fff;
+  }
+
+  .transport {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .mini {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    padding-left: 2px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: transform 0.4s var(--ease-spring);
+  }
+
+  .radio:global(.is-playing) .mini {
+    padding-left: 0;
+  }
+
+  .mini:hover {
+    transform: scale(1.08);
+  }
+
+  /* Seek bar: track filled up to the playhead via --p */
+  .seek {
+    flex: 1;
+    min-width: 0;
+    height: 28px;
+    margin: 0;
+    background: transparent;
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .seek::-webkit-slider-runnable-track {
+    height: 5px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent) var(--p, 0%), rgba(20, 33, 61, 0.12) var(--p, 0%));
+  }
+
+  .seek::-moz-range-track {
+    height: 5px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--accent) var(--p, 0%), rgba(20, 33, 61, 0.12) var(--p, 0%));
+  }
+
+  .seek::-webkit-slider-thumb {
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    margin-top: -5px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--accent);
+    box-shadow: 0 2px 6px rgba(20, 33, 61, 0.25);
+  }
+
+  .seek::-moz-range-thumb {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--accent);
+    box-shadow: 0 2px 6px rgba(20, 33, 61, 0.25);
+  }
+
+  .seek:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  .time {
+    flex: none;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+
   .community {
     list-style: none;
     margin: 0;
@@ -290,11 +874,13 @@ import { community, media } from '../data/cv';
     font-size: 0.9rem;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 1100px) {
     .media {
       grid-template-columns: repeat(2, 1fr);
     }
+  }
 
+  @media (max-width: 900px) {
     .community li {
       grid-template-columns: 1fr;
       gap: 0.5rem;
