@@ -279,10 +279,13 @@ const inviteHref = `mailto:${profile.email}?subject=${encodeURIComponent(inviteS
     margin-bottom: 1.5rem;
   }
 
+  /* Clips the rise-in animation; the padding leaves room for descenders like the j,
+     and the negative margin keeps the lines at the same spacing */
   .line {
     display: block;
     overflow: hidden;
-    padding-bottom: 0.06em;
+    padding-bottom: 0.26em;
+    margin-bottom: -0.2em;
   }
 
   .prefix {
@@ -677,7 +680,7 @@ const inviteHref = `mailto:${profile.email}?subject=${encodeURIComponent(inviteS
 
   @keyframes rise {
     from {
-      transform: translateY(110%) rotate(3deg);
+      transform: translateY(135%) rotate(3deg);
     }
   }
 
