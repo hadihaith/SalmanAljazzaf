@@ -168,7 +168,7 @@ window.addEventListener(
 onScroll();
 
 // Highlight the nav link for the section in view
-const navLinks = document.querySelectorAll<HTMLAnchorElement>('.nav a[href^="#"]');
+const navLinks = document.querySelectorAll<HTMLAnchorElement>('.nav a[href^="#"], .menu-links a[href^="#"]');
 const sectionObserver = new IntersectionObserver(
   (entries) => {
     for (const entry of entries) {

@@ -14,8 +14,72 @@ import SocialLinks from './SocialLinks.astro';
       {nav.map((item) => <a href={item.href}>{item.label}</a>)}
     </nav>
     <SocialLinks />
+    <button
+      type="button"
+      class="menu-toggle"
+      aria-label="Open menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
   </div>
 </header>
+
+<!-- Full-screen menu for phones and tablets, where the inline nav is hidden.
+     Lives outside the header because the header's backdrop-filter would trap a fixed overlay. -->
+<div class="mobile-menu" id="mobile-menu" inert>
+  <span class="menu-blob" aria-hidden="true"></span>
+  <nav class="menu-links" aria-label="Sections">
+    {
+      nav.map((item, i) => (
+        <a href={item.href} style={`--i: ${i}`}>
+          <span class="menu-index">{String(i + 1).padStart(2, '0')}</span>
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+  <div class="menu-foot" style={`--i: ${nav.length}`}>
+    <a class="menu-email" href={`mailto:${profile.email}`}>{profile.email}</a>
+    <SocialLinks labeled />
+  </div>
+</div>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const menu = document.querySelector<HTMLElement>('.mobile-menu');
+
+  function setOpen(open: boolean) {
+    if (!toggle || !menu) return;
+    document.body.classList.toggle('menu-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    menu.inert = !open;
+    // Stop the page scrolling behind the menu
+    document.documentElement.style.overflow = open ? 'hidden' : '';
+    if (open) menu.querySelector<HTMLElement>('a')?.focus({ preventScroll: true });
+  }
+
+  toggle?.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+
+  // Unlock scrolling before the browser follows the link, so it can scroll to the section
+  menu?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => setOpen(false)));
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && document.body.classList.contains('menu-open')) {
+      setOpen(false);
+      toggle?.focus();
+    }
+  });
+
+  // Close if the window grows past the breakpoint where the inline nav returns
+  matchMedia('(min-width: 1081px)').addEventListener('change', (event) => {
+    if (event.matches) setOpen(false);
+  });
+</script>
 
 <style>
   .scroll-progress {
@@ -117,9 +181,201 @@ import SocialLinks from './SocialLinks.astro';
     background: var(--text);
   }
 
+  /* ---------- Mobile menu ---------- */
+  .menu-toggle {
+    display: none;
+    position: relative;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--text);
+    cursor: pointer;
+    transition: transform 0.4s var(--ease-spring);
+  }
+
+  .menu-toggle:active {
+    transform: scale(0.92);
+  }
+
+  /* Three lines that fold into an X */
+  .menu-toggle span {
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    border-radius: 2px;
+    background: #fff;
+    transition:
+      transform 0.5s var(--ease),
+      opacity 0.3s,
+      top 0.5s var(--ease);
+  }
+
+  .menu-toggle span:nth-child(1) {
+    top: 14px;
+  }
+
+  .menu-toggle span:nth-child(2) {
+    top: 20px;
+    right: 17px;
+  }
+
+  .menu-toggle span:nth-child(3) {
+    top: 26px;
+  }
+
+  :global(body.menu-open) .menu-toggle span:nth-child(1) {
+    top: 20px;
+    transform: rotate(45deg);
+  }
+
+  :global(body.menu-open) .menu-toggle span:nth-child(2) {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+
+  :global(body.menu-open) .menu-toggle span:nth-child(3) {
+    top: 20px;
+    transform: rotate(-45deg);
+  }
+
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: 49;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 6.5rem 1.5rem 2rem;
+    overflow-y: auto;
+    background: var(--bg);
+    /* Opens as a circle growing from the menu button */
+    clip-path: circle(0 at calc(100% - 2.3rem) 2.6rem);
+    visibility: hidden;
+    transition:
+      clip-path 0.7s var(--ease),
+      visibility 0s 0.7s;
+  }
+
+  :global(body.menu-open) .mobile-menu {
+    clip-path: circle(150% at calc(100% - 2.3rem) 2.6rem);
+    visibility: visible;
+    transition:
+      clip-path 0.7s var(--ease),
+      visibility 0s;
+  }
+
+  /* Keep the header (logo + close button) above the menu, without the scrolled bar look */
+  :global(body.menu-open) .site-header {
+    background: transparent;
+    border-color: transparent;
+    backdrop-filter: none;
+  }
+
+  .menu-blob {
+    position: absolute;
+    z-index: -1;
+    width: 420px;
+    height: 420px;
+    right: -160px;
+    bottom: -120px;
+    border-radius: 50%;
+    background: #c9d6ff;
+    filter: blur(90px);
+    opacity: 0.6;
+  }
+
+  .menu-links {
+    display: grid;
+  }
+
+  .menu-links a,
+  .menu-foot {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 0.3s,
+      transform 0.3s var(--ease);
+  }
+
+  /* Links slide in one after another once the circle has opened */
+  :global(body.menu-open) .menu-links a,
+  :global(body.menu-open) .menu-foot {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.6s var(--ease),
+      transform 0.7s var(--ease);
+    transition-delay: calc(0.15s + var(--i) * 0.05s);
+  }
+
+  .menu-links a {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-serif);
+    font-size: clamp(1.7rem, 7vw, 2.4rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .menu-index {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+  }
+
+  .menu-links a:global(.is-active) {
+    color: var(--accent);
+  }
+
+  .menu-foot {
+    display: grid;
+    justify-items: start;
+    gap: 1.25rem;
+  }
+
+  .menu-email {
+    color: var(--muted);
+    font-size: 0.95rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .menu-foot :global(.labeled) {
+    justify-content: flex-start;
+  }
+
+  .menu-foot :global(.labeled a) {
+    border-color: var(--border);
+    box-shadow: var(--shadow-lg);
+  }
+
   @media (max-width: 1080px) {
     .nav {
       display: none;
+    }
+
+    .menu-toggle {
+      display: block;
+    }
+  }
+
+  @media (min-width: 1081px) {
+    .mobile-menu {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-menu,
+    :global(body.menu-open) .mobile-menu {
+      transition: none;
     }
   }
 </style>
