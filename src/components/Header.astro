@@ -65,9 +65,15 @@ import SocialLinks from './SocialLinks.astro';
 
   toggle?.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
 
-  // Android browsers drop the anchor jump when the scroll lock is lifted in the same tap,
-  // so unlock first and scroll ourselves. The jump is instant: the closing circle still
-  // covers the page, and an instant scroll can't be cut short like a smooth one.
+  // Android browsers ignore a scroll made in the same frame the scroll lock is lifted, so
+  // close the menu first and jump once the unlocked page has been drawn. The jump is
+  // instant: the closing circle still covers the page, and nothing can cut it short.
+  function jumpTo(target: Element) {
+    const top = target.getBoundingClientRect().top + window.scrollY;
+    const offset = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+    window.scrollTo({ top: top - offset, behavior: 'instant' });
+  }
+
   menu?.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((link) =>
     link.addEventListener('click', (event) => {
       const hash = link.getAttribute('href')!;
@@ -75,11 +81,15 @@ import SocialLinks from './SocialLinks.astro';
       setOpen(false);
       if (!target) return;
       event.preventDefault();
-      const root = document.documentElement;
-      root.style.scrollBehavior = 'auto';
-      target.scrollIntoView();
-      root.style.scrollBehavior = '';
       history.pushState(null, '', hash);
+      let done = false;
+      const go = () => {
+        if (done) return;
+        done = true;
+        jumpTo(target);
+      };
+      requestAnimationFrame(() => requestAnimationFrame(go));
+      setTimeout(go, 120); // in case frames are paused
     }),
   );
   menu?.querySelectorAll('a:not([href^="#"])').forEach((link) => link.addEventListener('click', () => setOpen(false)));
