@@ -65,8 +65,24 @@ import SocialLinks from './SocialLinks.astro';
 
   toggle?.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
 
-  // Unlock scrolling before the browser follows the link, so it can scroll to the section
-  menu?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => setOpen(false)));
+  // Android browsers drop the anchor jump when the scroll lock is lifted in the same tap,
+  // so unlock first and scroll ourselves. The jump is instant: the closing circle still
+  // covers the page, and an instant scroll can't be cut short like a smooth one.
+  menu?.querySelectorAll<HTMLAnchorElement>('a[href^="#"]').forEach((link) =>
+    link.addEventListener('click', (event) => {
+      const hash = link.getAttribute('href')!;
+      const target = document.querySelector(hash);
+      setOpen(false);
+      if (!target) return;
+      event.preventDefault();
+      const root = document.documentElement;
+      root.style.scrollBehavior = 'auto';
+      target.scrollIntoView();
+      root.style.scrollBehavior = '';
+      history.pushState(null, '', hash);
+    }),
+  );
+  menu?.querySelectorAll('a:not([href^="#"])').forEach((link) => link.addEventListener('click', () => setOpen(false)));
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && document.body.classList.contains('menu-open')) {
