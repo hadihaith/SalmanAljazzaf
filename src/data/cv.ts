@@ -208,26 +208,14 @@ export const journalArticles = [
   },
 ].map((pub) => ({ ...pub, href: scholar(pub.title) }));
 
-export const manuscripts = [
+// Accepted but not yet published, so there is no Scholar link yet
+export const forthcoming = [
   {
     title:
       'How Information Technology Reporting Structure and IT-Business Alignment Influence Firm Performance: New Insights from a Configurational Perspective',
     authors: 'Aljazzaf, S., Mithas, S., Park, Y. K., & Saldanha, T.',
     venue: 'Journal of Strategic Information Systems',
     status: 'Conditionally accepted',
-    year: '2026',
-  },
-  {
-    title:
-      'Digital Strategic Alignment and Discretionary Expenditures: Novel Insights from a Configurational Approach',
-    authors: 'Mithas, S., Park, Y. K., Saldanha, T., & Aljazzaf, S.',
-    status: 'Under review',
-    year: '2026',
-  },
-  {
-    title: 'What Does it Take to Achieve Transformational Results in Healthcare Organizations?',
-    authors: 'Aljazzaf, S., Mithas, S., Park, Y. K., & Saldanha, T.',
-    status: 'Under review',
     year: '2026',
   },
 ];

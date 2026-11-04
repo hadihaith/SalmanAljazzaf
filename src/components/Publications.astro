@@ -1,5 +1,5 @@
 ---
-import { conferencePapers, journalArticles, manuscripts } from '../data/cv';
+import { conferencePapers, forthcoming, journalArticles } from '../data/cv';
 
 interface Pub {
   title: string;
@@ -11,8 +11,7 @@ interface Pub {
 }
 
 const groups: { id: string; label: string; items: Pub[] }[] = [
-  { id: 'journals', label: 'Journal articles', items: journalArticles },
-  { id: 'manuscripts', label: 'Under review', items: manuscripts },
+  { id: 'journals', label: 'Journal articles', items: [...forthcoming, ...journalArticles] },
   { id: 'conferences', label: 'Conference papers', items: conferencePapers },
 ];
 ---
